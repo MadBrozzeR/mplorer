@@ -88,6 +88,10 @@ Styles.prototype.render = function () {
   }
 }
 Styles.prototype.add = function (key, styles) {
+  if (this.styles[key] === styles) {
+    return;
+  }
+
   this.styles[key] = styles;
   this.render();
 }
@@ -117,6 +121,17 @@ function bem (blockName) {
 
     return result.join(' ');
   }
+}
+bem.join = function () {
+  var result = '';
+
+  for (var index = 0 ; index < arguments.length ; ++index) {
+    if (arguments[index]) {
+      result += (result ? ' ' : '') + arguments[index];
+    }
+  }
+
+  return result;
 }
 
 export { render, Styles, bem };
