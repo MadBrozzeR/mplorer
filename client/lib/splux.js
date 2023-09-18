@@ -19,7 +19,7 @@ Splux.start = function (callback) {
 
 function deepSpread (fromObject, toObject) {
   for (var key in fromObject) {
-    if (fromObject[key] instanceof Object) {
+    if (fromObject[key].constructor === Object) {
       toObject[key] = toObject[key] || {};
 
       deepSpread(fromObject[key], toObject[key]);

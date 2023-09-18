@@ -1,11 +1,12 @@
 const fs = require('node:fs/promises');
-const { FS } = require('./fs.js');
+const { FS, getValidatedPath } = require('./fs.js');
 const { AsyncMemo } = require('./utils.js');
 const { getConfig } = require('./config.js');
 
 const ROOT = __dirname + '/../client/';
 const SRC_RE = /^\/src\/(.+)$/;
 const FILES_RE = /^\/fs\/(\w+)\/(.*)$/;
+const FILE_RE = /^\/file\/(\w+)\/(.*)$/;
 
 const CACHE = {
   'favicon.ico': 'max-age=604800',
@@ -27,12 +28,7 @@ function get404 (request) {
 }
 
 async function getFile (fileName, root) {
-  const rootPath = await fs.realpath(root) + '/';
-  const realPath = await fs.realpath(rootPath + fileName);
-
-  if (realPath.substring(0, rootPath.length) !== rootPath) {
-    throw new Error('Out of root: ' + fileName);
-  }
+  const realPath = await getValidatedPath(fileName, root);
 
   return await fs.readFile(realPath);
 }
@@ -63,12 +59,17 @@ async function getIndex (request) {
   request.send(await getFile('index.html', ROOT));
 }
 
-async function getFiles ([_, user, path]) {
-  const request = this;
+async function prepareFS (user) {
   const config = await useConfig();
   const fsRoot = config.fsRoot.replace('${user}', user) + '/';
 
-  const files = new FS(fsRoot);
+  return new FS(fsRoot);
+}
+
+async function getFiles ([_, user, path]) {
+  const request = this;
+
+  const files = await prepareFS(user);
 
   try {
     const content = await files.readDir(path);
@@ -79,6 +80,14 @@ async function getFiles ([_, user, path]) {
   }
 }
 
+async function readFile ([_, user, path]) {
+  const files = await prepareFS(user);
+  const file = await files.getFile(path);
+  this.headers['Content-Length'] = file.data.length;
+  this.headers['Content-Disposition'] = 'attachment; filename="' + file.name +'"';
+  this.send(file.data, file.extension);
+}
+
 const ROUTER = {
   '/': { GET: getIndex },
 };
@@ -86,6 +95,7 @@ const ROUTER = {
 module.exports = function (request) {
   request.match(SRC_RE, getResource)
     || request.match(FILES_RE, getFiles)
+    || request.match(FILE_RE, readFile)
     || request.route(ROUTER)
     || get404(request);
 };

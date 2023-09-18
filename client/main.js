@@ -1,5 +1,6 @@
 import { Splux } from '/src/lib/splux.js';
 import { Styles } from '/src/lib/styles.js';
+import { Cover } from '/src/components/cover/cover.js';
 
 import { Body } from '/src/components/body/body.js';
 
@@ -97,4 +98,5 @@ Splux.start(function (body, head) {
   host.styles.add('root', STYLE);
 
   this.dom(Body);
+  this.host.cover = this.dom(Cover);
 });

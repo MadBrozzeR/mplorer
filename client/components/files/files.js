@@ -1,4 +1,5 @@
 import { bem } from '/src/lib/styles.js';
+import { handleFile } from './handlers.js';
 
 var FLOATER = {
   display: 'block',
@@ -78,14 +79,16 @@ function File (file, data) {
     file.innerText = data.name;
     file.className = 'file file_type_' + data.type;
 
-    if (data.type === 'directory') {
-      file.onclick = function () {
-        host.router.push(data.name);
-      }
-    } else if (data.type === 'back') {
-      file.onclick = function () {
-        host.router.pop();
-      }
+    switch (data.type) {
+      case 'directory':
+        file.onclick = function () {
+          host.router.push(data.name);
+        }
+        break;
+      default:
+        file.onclick = function () {
+          handleFile(data, host);
+        }
     }
   }
 }
