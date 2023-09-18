@@ -15,10 +15,10 @@ const VIEWERS = {
   'svg': ImageViewer,
 };
 
-export function handleFile (file, host) {
+export function handleFile (file, list, host) {
   var extension = getExtension(file.name);
 
   if (extension in VIEWERS) {
-    host.cover.set(VIEWERS[extension], file);
+    host.cover.set(VIEWERS[extension], { file, list });
   }
 };

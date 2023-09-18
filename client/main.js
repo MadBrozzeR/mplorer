@@ -82,6 +82,62 @@ State.prototype.listen = function (callback) {
     callback(this.state);
   }
 }
+function Playlist (list) {
+  this.loop = true;
+  this.index = 0;
+  this.set(list);
+}
+Playlist.prototype.set = function (list, { index, file, loop } = {}) {
+  this.loop = loop === undefined ? this.loop : loop;
+  this.list = list || [];
+  this.index = index || 0;
+
+  if (file) {
+    this.use(file);
+  }
+
+  return this;
+}
+Playlist.prototype.use = function (name) {
+  var index = this.list.indexOf(name);
+
+  if (index > -1) {
+    this.index = index;
+
+    return name;
+  }
+
+  return null;
+}
+Playlist.prototype.current = function () {
+  return this.list[this.index] || null;
+}
+Playlist.prototype.next = function () {
+  var next = this.index + 1;
+
+  if (this.list[next]) {
+    this.index = next;
+  } else if (this.loop) {
+    this.index = 0;
+  } else {
+    return null;
+  }
+
+  return this.current();
+}
+Playlist.prototype.prev = function () {
+  var prev = this.index - 1;
+
+  if (this.list[prev]) {
+    this.index = prev;
+  } else if (this.loop) {
+    this.index = this.list.length - 1;
+  } else {
+    return null;
+  }
+
+  return this.current();
+}
 
 Splux.start(function (body, head) {
   var host = this.host;
@@ -90,6 +146,7 @@ Splux.start(function (body, head) {
   host.state = {
     route: new State({}),
   };
+  host.playlist = new Playlist();
 
   host.router = new Router(function (route) {
     host.state.route.set(route);

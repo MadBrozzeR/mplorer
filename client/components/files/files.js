@@ -72,7 +72,7 @@ var STYLE = {
   }
 };
 
-function File (file, data) {
+function File (file, { data, list }) {
   const host = this.host;
 
   if (data) {
@@ -87,7 +87,7 @@ function File (file, data) {
         break;
       default:
         file.onclick = function () {
-          handleFile(data, host);
+          handleFile(data, list, host);
         }
     }
   }
@@ -127,7 +127,7 @@ export function Files (files) {
       });
 
       for (var index = 0 ; index < payload.length ; ++index) {
-        block.dom(File, payload[index]);
+        block.dom(File, { data: payload[index], list: payload });
       }
     } catch (error) {
       console.log(error);

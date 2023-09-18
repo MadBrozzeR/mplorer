@@ -62,13 +62,57 @@ var STYLE = {
 
 var cn = bem('image-viewer');
 
-export function ImageViewer (viewer, file) {
+function getExtension (file) {
+  var index = file.lastIndexOf('.');
+
+  if (index > -1) {
+    return file.substring(index + 1);
+  }
+
+  return '';
+}
+
+var IMAGE_EXTENSIONS = {
+  png: true,
+  jpg: true,
+  jpeg: true,
+  svg: true,
+  gif: true,
+  webp: true,
+};
+
+function imagePlaylistFilter (list, path) {
+  var result = [];
+  var extension, name;
+
+  for (var index = 0 ; index < list.length ; ++index) {
+    name = list[index].name;
+    extension = getExtension(name);
+
+    if (extension in IMAGE_EXTENSIONS) {
+      result.push(path + name);
+    }
+  }
+
+  return result;
+}
+
+export function ImageViewer (viewer, { file, list }) {
   viewer.className = cn();
-  const host = this.host;
+  var host = this.host;
   var user = host.state.route.state.user;
+  var path = host.state.route.state.path;
+  var fileName = path + file.name;
   this.host.styles.add('image-viewer', STYLE);
-  var fileName = host.state.route.state.path + file.name;
-  this.dom('img', { src: '/file/' + user + '/' + fileName, className: cn('image') });
+  var image = this.dom('img', { className: cn('image') });
+
+  host.playlist.set(imagePlaylistFilter(list, path), { file: fileName });
+
+  function set (file) {
+    image.src = '/file/' + user + file;
+  }
+
+  set(host.playlist.current());
 
   this.dom('div', {
     innerText: '✖',
@@ -81,10 +125,16 @@ export function ImageViewer (viewer, file) {
   this.dom('div', {
     innerText: '←',
     className: cn('left'),
+    onclick: function () {
+      set(host.playlist.prev());
+    }
   });
 
   this.dom('div', {
     innerText: '→',
     className: cn('right'),
+    onclick: function () {
+      set(host.playlist.prev());
+    }
   });
 }
