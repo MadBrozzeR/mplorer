@@ -112,29 +112,45 @@ Playlist.prototype.use = function (name) {
 Playlist.prototype.current = function () {
   return this.list[this.index] || null;
 }
-Playlist.prototype.next = function () {
-  var next = this.index + 1;
+Playlist.prototype.relativeIndex = function (value) {
+  var newIndex = this.index + value;
 
-  if (this.list[next]) {
-    this.index = next;
-  } else if (this.loop) {
-    this.index = 0;
-  } else {
+  if (this.loop) {
+    var shift = newIndex % this.list.length;
+
+    return shift < 0 ? (this.list.length + shift) : shift;
+  }
+
+  if (this.list[newIndex]) {
+    return newIndex;
+  }
+
+  return -1;
+}
+Playlist.prototype.relative = function (value) {
+  var newIndex = this.relativeIndex(value);
+
+  return newIndex > -1 ? this.list[newIndex] : null;
+}
+Playlist.prototype.next = function () {
+  var next = this.relativeIndex(1);
+
+  if (!this.list[next]) {
     return null;
   }
+
+  this.index = next;
 
   return this.current();
 }
 Playlist.prototype.prev = function () {
-  var prev = this.index - 1;
+  var prev = this.relativeIndex(-1);
 
-  if (this.list[prev]) {
-    this.index = prev;
-  } else if (this.loop) {
-    this.index = this.list.length - 1;
-  } else {
+  if (!this.list[prev]) {
     return null;
   }
+
+  this.index = prev;
 
   return this.current();
 }

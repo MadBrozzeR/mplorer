@@ -136,13 +136,36 @@ export function ImageViewer (viewer, { file, list }) {
   var path = host.state.route.state.path;
   var fileName = path + file.name;
   this.host.styles.add('image-viewer', STYLE);
-  var image = this.dom('img', { className: cn('image') });
+  var images = {};
+  var current = null;
   var fullscreen = false;
 
   host.playlist.set(imagePlaylistFilter(list, path), { file: fileName });
 
   function set (file) {
-    image.src = '/file/' + user + file;
+    if (current) {
+      viewer.removeChild(current);
+    }
+
+    current = getImage(file);
+    getImage(host.playlist.relative(-2));
+    getImage(host.playlist.relative(-1));
+    getImage(host.playlist.relative(1));
+    getImage(host.playlist.relative(2));
+
+    viewer.appendChild(images[file]);
+  }
+
+  function getImage (file) {
+    if (images[file]) {
+      return images[file];
+    }
+
+    var img = new Image();
+    img.src = '/file/' + user + file;
+    img.className = cn('image');
+
+    return images[file] = img;
   }
 
   set(host.playlist.current());
@@ -154,8 +177,8 @@ export function ImageViewer (viewer, { file, list }) {
     ifc.className = cn('interface');
     ifc.onclick = function () {
       if (clickPropagated) {
-        return;
         clickPropagated = false;
+        return;
       }
 
       ifc.className = cn('interface', { hidden: !(visible = !visible) })
@@ -178,8 +201,14 @@ export function ImageViewer (viewer, { file, list }) {
       className: cn('fullscreen'),
       onclick: function () {
         clickPropagated = true;
-        viewer.requestFullscreen();
-        fullscreen = true;
+
+        if (fullscreen) {
+          document.exitFullscreen();
+          fullscreen = false;
+        } else {
+          viewer.requestFullscreen();
+          fullscreen = true;
+        }
       }
     });
 
@@ -197,7 +226,7 @@ export function ImageViewer (viewer, { file, list }) {
       className: cn('right'),
       onclick: function () {
         clickPropagated = true;
-        set(host.playlist.prev());
+        set(host.playlist.next());
       }
     });
   })

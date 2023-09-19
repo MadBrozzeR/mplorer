@@ -30,19 +30,21 @@ function deepSpread (fromObject, toObject) {
 }
 
 Splux.prototype.dom = function () {
-  var tag, params, extra;
+  var element, params, extra;
 
-  if (arguments[0] instanceof Function) {
-    tag = arguments[0].tag || 'div';
+  if (arguments[0] instanceof HTMLElement) {
+    element = arguments[0];
+    params = arguments[1];
+    extra = arguments[2];
+  } else if (arguments[0] instanceof Function) {
+    element = document.createElement(arguments[0].tag || 'div');
     params = arguments[0];
     extra = arguments[1];
   } else {
-    tag = arguments[0];
+    element = document.createElement(arguments[0]);
     params = arguments[1];
     extra = arguments[2];
   }
-
-  var element = document.createElement(tag);
 
   if (this.node) {
     this.node.appendChild(element);
