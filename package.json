@@ -24,5 +24,8 @@
   "homepage": "https://github.com/MadBrozzeR/mplorer#readme",
   "devDependencies": {
     "mbr-serv": "^0.1.0"
+  },
+  "dependencies": {
+    "mbr-zip": "^0.1.0"
   }
 }
