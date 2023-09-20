@@ -1,4 +1,5 @@
 const fs = require('node:fs/promises');
+const { extract } = require('./zip');
 
 const TRAIL_SLASH_RE = /\/+$/;
 const MULTIPLE_SLASH_RE = /\/{2,}/g;
@@ -47,6 +48,9 @@ ThePath.prototype.getExtension = function () {
 }
 ThePath.prototype.getFullPath = function () {
   return this.root + this.getPath();
+}
+ThePath.prototype.readFile = function () {
+  return fs.readFile(this.getFullPath());
 }
 
 function getExtension (file) {
@@ -115,7 +119,7 @@ FS.prototype.getFile = async function (path) {
   await this.path.update(path);
   const extension = this.path.getExtension();
 
-  const data = await fs.readFile(this.path.getFullPath());
+  const data = await this.path.readFile();
 
   return {
     path: path,
@@ -129,6 +133,29 @@ FS.prototype.getFullPath = async function (path) {
   await this.path.update(path);
 
   return this.path.getFullPath();
+}
+FS.prototype.unzip = async function (path) {
+  await this.path.update(path);
+
+  if (this.path.getExtension() !== 'zip') {
+    throw new Error('Not a ZIP file: ' + path);
+  }
+
+  const fullPath = this.path.getFullPath();
+  const dirname = fullPath.substring(0, fullPath.length - 4);
+
+  try {
+    await fs.access(dirname);
+    throw new Error('Directory exists');
+  } catch (error) {
+    if (error.message === 'Directory exists') {
+      throw error;
+    }
+
+    const fileData = await this.path.readFile();
+
+    return extract(fileData, dirname);
+  }
 }
 
 module.exports = { FS, getValidatedPath };

@@ -104,7 +104,7 @@ function getExtension (file) {
   return '';
 }
 
-var IMAGE_EXTENSIONS = {
+export var IMAGE_SUPPORT = {
   png: true,
   jpg: true,
   jpeg: true,
@@ -121,7 +121,7 @@ function imagePlaylistFilter (list, path) {
     name = list[index].name;
     extension = getExtension(name);
 
-    if (extension in IMAGE_EXTENSIONS) {
+    if (extension in IMAGE_SUPPORT) {
       result.push(path + name);
     }
   }

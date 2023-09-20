@@ -1,4 +1,4 @@
-import { ImageViewer } from "../viewers/image.js";
+import { ImageViewer, IMAGE_SUPPORT } from "../viewers/image.js";
 
 function getExtension (file) {
   var dotPos = file.lastIndexOf('.');
@@ -10,9 +10,18 @@ function getExtension (file) {
   return '';
 }
 
+function register (extensions, viewer) {
+  var result = {};
+
+  for (var extension in extensions) {
+    result[extension] = viewer;
+  }
+
+  return result;
+}
+
 const VIEWERS = {
-  'png': ImageViewer,
-  'svg': ImageViewer,
+  ...register(IMAGE_SUPPORT, ImageViewer),
 };
 
 export function handleFile (file, list, host) {

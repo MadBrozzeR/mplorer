@@ -5,8 +5,7 @@ const { getConfig } = require('./config.js');
 
 const ROOT = __dirname + '/../client/';
 const SRC_RE = /^\/src\/(.+)$/;
-const FILES_RE = /^\/fs\/(\w+)\/(.*)$/;
-const FILE_RE = /^\/file\/(\w+)\/(.*)$/;
+const FILES_RE = /^\/(fs|file|unzip)\/(\w+)\/(.*)$/;
 
 const CACHE = {
   'favicon.ico': 'max-age=604800',
@@ -66,7 +65,7 @@ async function prepareFS (user) {
   return new FS(fsRoot);
 }
 
-async function getFiles ([_, user, path]) {
+async function getFiles (user, path) {
   const request = this;
 
   const files = await prepareFS(user);
@@ -80,12 +79,38 @@ async function getFiles ([_, user, path]) {
   }
 }
 
-async function readFile ([_, user, path]) {
+async function readFile (user, path) {
   const files = await prepareFS(user);
   const file = await files.getFile(path);
   this.headers['Content-Length'] = file.data.length;
   this.headers['Content-Disposition'] = 'attachment; filename="' + file.name +'"';
   this.send(file.data, file.extension);
+}
+
+async function unzipFile (user, path) {
+  try {
+    const files = await prepareFS(user);
+    const file = await files.unzip(path);
+
+    this.send();
+  } catch (error) {
+    this.status = 500;
+    this.send();
+  }
+}
+
+function manipulateFiles ([_, action, user, path]) {
+  switch (action) {
+    case 'fs':
+      getFiles.call(this, user, path);
+      break;
+    case 'file':
+      readFile.call(this, user, path);
+      break;
+    case 'unzip':
+      unzipFile.call(this, user, path);
+      break;
+  }
 }
 
 const ROUTER = {
@@ -94,8 +119,7 @@ const ROUTER = {
 
 module.exports = function (request) {
   request.match(SRC_RE, getResource)
-    || request.match(FILES_RE, getFiles)
-    || request.match(FILE_RE, readFile)
+    || request.match(FILES_RE, manipulateFiles)
     || request.route(ROUTER)
     || get404(request);
 };
