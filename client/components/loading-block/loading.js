@@ -1,4 +1,4 @@
-import { bem } from '/src/lib/styles.js';
+import { bem } from '/src/lib/bem.js';
 
 var STYLES = {
   '.loading-block': {

@@ -6,6 +6,7 @@ const { getConfig } = require('./config.js');
 const ROOT = __dirname + '/../client/';
 const SRC_RE = /^\/src\/(.+)$/;
 const FILES_RE = /^\/(fs|file|unzip)\/(\w+)\/(.*)$/;
+const NODE_MODULES = __dirname + '/../node_modules/';
 
 const CACHE = {
   'favicon.ico': 'max-age=604800',
@@ -115,11 +116,13 @@ function manipulateFiles ([_, action, user, path]) {
 
 const ROUTER = {
   '/': { GET: getIndex },
+  '/src/mbr-style.js': NODE_MODULES + 'mbr-style/index.js',
+  '/src/splux.js': NODE_MODULES + 'splux/splux.js',
 };
 
 module.exports = function (request) {
-  request.match(SRC_RE, getResource)
+  request.route(ROUTER)
+    || request.match(SRC_RE, getResource)
     || request.match(FILES_RE, manipulateFiles)
-    || request.route(ROUTER)
     || get404(request);
 };
