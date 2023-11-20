@@ -1,4 +1,5 @@
-import { bem } from '/src/lib/bem.js';
+import { bem } from '../../lib/bem';
+import { newComponent } from '../../common/host';
 
 var cn = bem('cover');
 
@@ -7,7 +8,7 @@ var STYLE = {
     position: 'fixed',
     top: 0,
     left: 0,
-    width: '0%',
+    // width: '0%',
     height: '0%',
     width: 'auto',
     display: 'flex',
@@ -23,12 +24,13 @@ var STYLE = {
   }
 };
 
-export function Cover (curtain) {
+export const Cover = newComponent('div', function Cover (curtain) {
   curtain.className = cn('curtain');
   this.host.styles.add('cover', STYLE);
   var container = this;
 
-  function set (component, params) {
+  // TODO replace any
+  function set (component: any, params: any) {
     curtain.innerText = '';
     container.dom(component, params);
     curtain.className = cn('curtain', { active: true });
@@ -39,4 +41,4 @@ export function Cover (curtain) {
   }
 
   return { set, close };
-}
+});

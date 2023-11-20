@@ -1,9 +1,9 @@
-const { MBRZip } = require('mbr-zip');
-const fs = require('node:fs/promises');
+import { MBRZip } from 'mbr-zip';
+import fs from 'node:fs/promises';
 
-function extract (data, directory) {
+export function extract (data: Buffer, directory: string) {
   const zip = new MBRZip(data);
-  const promises = [];
+  const promises: Promise<void>[] = [];
 
   zip.iterate(async function (name, record) {
     const fullPath = directory + '/' + name;
@@ -29,5 +29,3 @@ function extract (data, directory) {
 
   return Promise.all(promises);
 }
-
-module.exports = { extract };

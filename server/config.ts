@@ -1,11 +1,11 @@
-const fs = require('node:fs/promises');
+import fs from 'node:fs/promises';
 
 const FILE = {
   CONFIG: __dirname + '/../config.json',
   EXAMPLE: __dirname + '/../config.example.json',
 };
 
-async function getConfig () {
+export async function getConfig () {
   let file;
 
   try {
@@ -28,5 +28,3 @@ async function getConfig () {
 
   return null;
 }
-
-module.exports = { getConfig };

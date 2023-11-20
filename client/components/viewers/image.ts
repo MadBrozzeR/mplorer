@@ -1,4 +1,5 @@
-import { bem } from '/src/lib/bem.js';
+import { bem } from '../../lib/bem';
+import { newComponent } from '../../common/host';
 
 var STYLE = {
   '.image-viewer': {
@@ -129,7 +130,7 @@ function imagePlaylistFilter (list, path) {
   return result;
 }
 
-export function ImageViewer (viewer, { file, list }) {
+export const ImageViewer = newComponent('div', function ImageViewer (viewer, { file, list }) {
   viewer.className = cn();
   var host = this.host;
   var user = host.state.route.state.user;
@@ -187,7 +188,7 @@ export function ImageViewer (viewer, { file, list }) {
     this.dom('div', {
       innerText: '✖',
       className: cn('close'),
-      onclick() {
+      onclick: function () {
         clickPropagated = true;
         host.cover.close();
         if (fullscreen) {
@@ -230,4 +231,4 @@ export function ImageViewer (viewer, { file, list }) {
       }
     });
   })
-}
+});

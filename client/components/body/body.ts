@@ -1,5 +1,6 @@
-import { Files } from '/src/components/files/files.js';
-import { Header } from '/src/components/header/header.js';
+import { newComponent } from '../../common/host';
+import { Files } from '../files/files';
+import { Header } from '../header/header';
 
 const STYLE = {
   '.main-block': {
@@ -13,7 +14,7 @@ const STYLE = {
   },
 };
 
-export function Body (body) {
+export const Body = newComponent('div', function (body) {
   this.host.styles.add('body', STYLE);
 
   var host = this.host;
@@ -22,6 +23,4 @@ export function Body (body) {
 
   this.dom(Header);
   this.dom(Files);
-};
-
-Body.tag = 'div';
+});

@@ -1,5 +1,6 @@
-import { bem } from '/src/lib/bem.js';
-import { handleFile } from './handlers.js';
+import { bem } from '../../lib/bem';
+import { handleFile } from './handlers';
+import { newComponent } from '../../common/host';
 
 var FLOATER = {
   display: 'block',
@@ -72,7 +73,7 @@ var STYLE = {
   }
 };
 
-function File (file, { data, list }) {
+const File = newComponent('div', function File (file, { data, list }) {
   const host = this.host;
 
   if (data) {
@@ -91,8 +92,7 @@ function File (file, { data, list }) {
         }
     }
   }
-}
-File.tag = 'div';
+});
 
 var ORDER = {
   back: 1,
@@ -100,7 +100,7 @@ var ORDER = {
   file: 3,
 };
 
-export function Files (files) {
+export const Files = newComponent('div', function Files (files) {
   const block = this;
   const cn = bem('files');
 
@@ -135,5 +135,4 @@ export function Files (files) {
       files.className = cn();
     }
   });
-};
-Files.tag = 'div';
+});

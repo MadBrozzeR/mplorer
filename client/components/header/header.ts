@@ -1,3 +1,5 @@
+import { newComponent } from '../../common/host';
+
 var STYLE = {
   '.header': {
     height: '40px',
@@ -29,7 +31,7 @@ var STYLE = {
 
 var FLOATING_SLASH_RE = /^\/+|\/+$/g;
 
-export function Header (header) {
+export const Header = newComponent('div', function Header (header) {
   header.className = 'header';
   var host = this.host;
   host.styles.add('header', STYLE);
@@ -54,4 +56,4 @@ export function Header (header) {
   });
 
   this.dom('div', { className: 'header-menu' });
-}
+});

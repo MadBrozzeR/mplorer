@@ -1,4 +1,4 @@
-import { ImageViewer, IMAGE_SUPPORT } from "../viewers/image.js";
+import { ImageViewer, IMAGE_SUPPORT } from "../viewers/image";
 
 function getExtension (file) {
   var dotPos = file.lastIndexOf('.');

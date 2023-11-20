@@ -1,5 +1,5 @@
-module.exports.AsyncMemo = function AsyncMemo (promise) {
-  let result = null;
+export function AsyncMemo<T> (promise: Promise<T>) {
+  let result: T | null = null;
   let ready = false;
 
   const newPromise = promise.catch(function (error) {

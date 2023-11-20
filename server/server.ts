@@ -1,39 +1,47 @@
-const fs = require('node:fs/promises');
-const { FS, getValidatedPath } = require('./fs.js');
-const { AsyncMemo } = require('./utils.js');
-const { getConfig } = require('./config.js');
+import fs from 'node:fs/promises';
+import type { Request } from 'mbr-serv-request';
+import { FS, getValidatedPath } from './fs';
+import { AsyncMemo } from './utils';
+import { getConfig } from './config';
+import { readTSFile } from './ts-transpiler';
 
 const ROOT = __dirname + '/../client/';
 const SRC_RE = /^\/src\/(.+)$/;
 const FILES_RE = /^\/(fs|file|unzip)\/(\w+)\/(.*)$/;
+
 const NODE_MODULES = __dirname + '/../node_modules/';
 
-const CACHE = {
+const CACHE: Record<string, string> = {
   'favicon.ico': 'max-age=604800',
 };
 
 const useConfig = AsyncMemo(getConfig());
 
-function getPathParts (path) {
-  const [name, params = ''] = path.split('?');
+function getPathParts (path: string) {
+  let [name, params = ''] = path.split('?');
   const dotIndex = name.lastIndexOf('.');
-  const extension = dotIndex > -1 ? name.substring(dotIndex + 1) : null;
+  let extension = dotIndex > -1 ? name.substring(dotIndex + 1) : null;
+
+  if (!extension) {
+    name += '.ts';
+    extension = 'ts';
+  }
 
   return { name, params, extension };
 }
 
-function get404 (request) {
+function get404 (request: Request) {
   request.status = 404;
   request.send('404', 'html');
 }
 
-async function getFile (fileName, root) {
+async function getFile (fileName: string, root: string) {
   const realPath = await getValidatedPath(fileName, root);
 
   return await fs.readFile(realPath);
 }
 
-async function getResource (regMatch) {
+async function getResource (this: Request, regMatch: RegExpExecArray) {
   const request = this;
   const pathParts = getPathParts(regMatch[1]);
 
@@ -42,31 +50,37 @@ async function getResource (regMatch) {
       throw new Error('Not a GET');
     }
 
-    const file = await getFile(pathParts.name, ROOT);
+    let file: Buffer | string = await getFile(pathParts.name, ROOT);
+    let extension = pathParts.extension;
+
+    if (pathParts.extension === 'ts') {
+      file = await readTSFile(file);
+      extension = 'js';
+    }
 
     if (pathParts.name in CACHE) {
       request.headers['Cache-Control'] = CACHE[pathParts.name];
     }
 
-    request.send(file, pathParts.extension);
+    request.send(file, extension || '');
   } catch (error) {
     console.log(error);
     get404(request);
   }
 }
 
-async function getIndex (request) {
+async function getIndex (request: Request) {
   request.send(await getFile('index.html', ROOT));
 }
 
-async function prepareFS (user) {
+async function prepareFS (user: string) {
   const config = await useConfig();
   const fsRoot = config.fsRoot.replace('${user}', user) + '/';
 
   return new FS(fsRoot);
 }
 
-async function getFiles (user, path) {
+async function getFiles (this: Request, user: string, path: string) {
   const request = this;
 
   const files = await prepareFS(user);
@@ -80,15 +94,15 @@ async function getFiles (user, path) {
   }
 }
 
-async function readFile (user, path) {
+async function readFile (this: Request, user: string, path: string) {
   const files = await prepareFS(user);
   const file = await files.getFile(path);
-  this.headers['Content-Length'] = file.data.length;
+  this.headers['Content-Length'] = file.data.length.toString();
   this.headers['Content-Disposition'] = 'attachment; filename="' + file.name +'"';
   this.send(file.data, file.extension);
 }
 
-async function unzipFile (user, path) {
+async function unzipFile (this: Request, user: string, path: string) {
   try {
     const files = await prepareFS(user);
     const file = await files.unzip(path);
@@ -100,7 +114,7 @@ async function unzipFile (user, path) {
   }
 }
 
-function manipulateFiles ([_, action, user, path]) {
+function manipulateFiles (this: Request, [_, action, user, path]: RegExpExecArray) {
   switch (action) {
     case 'fs':
       getFiles.call(this, user, path);
@@ -116,11 +130,12 @@ function manipulateFiles ([_, action, user, path]) {
 
 const ROUTER = {
   '/': { GET: getIndex },
+  '/src/splux.js': NODE_MODULES + 'splux/index.js',
   '/src/mbr-style.js': NODE_MODULES + 'mbr-style/index.js',
-  '/src/splux.js': NODE_MODULES + 'splux/splux.js',
+  '/src/mbr-state.js': NODE_MODULES + 'mbr-state/index.js',
 };
 
-module.exports = function (request) {
+module.exports = function (request: Request) {
   request.route(ROUTER)
     || request.match(SRC_RE, getResource)
     || request.match(FILES_RE, manipulateFiles)
