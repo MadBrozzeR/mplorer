@@ -19,3 +19,13 @@ export function AsyncMemo<T> (promise: Promise<T>) {
     }
   };
 };
+
+export function wait (delay: number) {
+  return new Promise<void>(function (resolve) {
+    if (delay) {
+      setTimeout(resolve, delay);
+    } else {
+      resolve();
+    }
+  });
+}

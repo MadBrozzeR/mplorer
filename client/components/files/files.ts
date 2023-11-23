@@ -1,6 +1,9 @@
 import { bem } from '../../lib/bem';
 import { handleFile } from './handlers';
 import { newComponent } from '../../common/host';
+import { FileData } from '../../common/types';
+import { createFolderIcon } from '../svg/folder';
+import { createFileIcon } from '../svg/file';
 
 var FLOATER = {
   display: 'block',
@@ -31,6 +34,7 @@ var STYLE = {
     position: 'relative',
     flex: 1,
     overflow: 'auto',
+    paddingTop: '8px',
 
     ':before': {
       ...FLOATER,
@@ -49,7 +53,21 @@ var STYLE = {
       ':after': {
         opacity: 1,
       }
-    }
+    },
+
+    '::-webkit-scrollbar': {
+      width: '10px',
+
+      '-track': {
+      },
+
+      '-thumb': {
+        border: '2px solid transparent',
+        backgroundClip: 'padding-box',
+        backgroundColor: '#99f',
+        borderRadius: '5px',
+      },
+    },
   },
 
   '.file': {
@@ -58,6 +76,35 @@ var STYLE = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     lineHeight: '32px',
+    transition: '.6s text-shadow ease-in-out, .6s color ease-in-out',
+    display: 'flex',
+    gap: '4px',
+    alignItems: 'center',
+
+    ':hover': {
+      // transform: 'translateX(4px)',
+      textShadow: '0 0 2px darkorange, 0 0 4px white',
+      color: '#224',
+      transition: '.2s text-shadow ease-in-out, .2s color ease-in-out',
+
+      ' .file__name': {
+        transform: 'translateX(8px)',
+        transition: '.2s transform ease-in-out',
+      }
+    },
+
+    '__icon': {
+      width: '24px',
+      transform: 'translateY(-2px)',
+    },
+
+    '__name': {
+      display: 'inline-block',
+      transition: '.6s transform ease-in-out',
+      flex: 1,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
   },
 
   '.file_type': {
@@ -70,27 +117,50 @@ var STYLE = {
       fontWeight: 900,
       cursor: 'pointer',
     }
-  }
+  },
+
+  '@media (max-width: 640px)': {
+    '.files': {
+      padding: '0 8px 8px',
+    },
+  },
 };
 
-const File = newComponent('div', function File (file, { data, list }) {
+type Params = {
+  data: FileData;
+  list: FileData[];
+};
+
+const File = newComponent(function File (file, { data, list }: Params) {
   const host = this.host;
 
   if (data) {
-    file.innerText = data.name;
-    file.className = 'file file_type_' + data.type;
+    let icon: ReturnType<typeof createFolderIcon> | null = null;
+
+    this.setParams({
+      className: 'file file_type_' + data.type,
+      onmouseover() { icon?.hover(true); },
+      onmouseout() { icon?.hover(false); },
+    });
 
     switch (data.type) {
       case 'directory':
         file.onclick = function () {
           host.router.push(data.name);
         }
+
+        icon = createFolderIcon({ className: 'file__icon' });
+        this.dom(icon.node);
         break;
       default:
         file.onclick = function () {
           handleFile(data, list, host);
         }
+        icon = createFileIcon({ className: 'file__icon' });
+        this.dom(icon.node);
     }
+
+    this.dom('span', { innerText: data.name, className: 'file__name' });
   }
 });
 
@@ -100,7 +170,7 @@ var ORDER = {
   file: 3,
 };
 
-export const Files = newComponent('div', function Files (files) {
+export const Files = newComponent(function Files (files) {
   const block = this;
   const cn = bem('files');
 
@@ -120,7 +190,7 @@ export const Files = newComponent('div', function Files (files) {
         );
       }
 
-      const payload = await response.json();
+      const payload: FileData[] = await response.json();
 
       payload.sort(function (file1, file2) {
         return ORDER[file1.type] - ORDER[file2.type];

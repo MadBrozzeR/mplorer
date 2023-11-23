@@ -21,7 +21,7 @@ const STYLE = {
 
   '@media (max-width: 640px)': {
     'body': {
-      padding: '8px',
+      padding: '0px',
     }
   }
 }

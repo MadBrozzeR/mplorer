@@ -1,8 +1,9 @@
+import type { Component } from 'splux';
 import { newComponent } from '../../common/host';
 
 var STYLE = {
   '.header': {
-    height: '40px',
+    height: '36px',
     display: 'flex',
     alignItems: 'center',
   },

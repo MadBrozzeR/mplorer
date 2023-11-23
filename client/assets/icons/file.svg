@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <style>
+      .blur {
+        display: block;
+      }
+      .icon {
+        stroke: #99f;
+      }
+    </style>
+    <polyline id="icon" points="25,10 20,5 6,5 6,27 26,27 26,14 18,14 18,9" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+
+    <filter id="blur1">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+    </filter>
+    <filter id="blur2">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+    </filter>
+  </defs>
+
+  <g class="blur">
+    <use href="#icon" stroke="white" filter="url(#blur2)" />
+    <use href="#icon" stroke="darkorange" filter="url(#blur1)" />
+  </g>
+  <use href="#icon" class="icon" />
+</svg>

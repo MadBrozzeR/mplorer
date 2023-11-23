@@ -1,3 +1,4 @@
 {
-  "fsRoot": "/Users/${user}/Downloads"
+  "fsRoot": "/Users/${user}/Downloads",
+  "responseDelay": 1000
 }

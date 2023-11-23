@@ -1,5 +1,7 @@
 import { bem } from '../../lib/bem';
 import { newComponent } from '../../common/host';
+import type { FileData } from '../../common/types';
+import type { Viewer } from '../files/types';
 
 var STYLE = {
   '.image-viewer': {
@@ -130,7 +132,7 @@ function imagePlaylistFilter (list, path) {
   return result;
 }
 
-export const ImageViewer = newComponent('div', function ImageViewer (viewer, { file, list }) {
+export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function ImageViewer (viewer, { file, list }) {
   viewer.className = cn();
   var host = this.host;
   var user = host.state.route.state.user;

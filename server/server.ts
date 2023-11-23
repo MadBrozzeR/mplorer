@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import type { Request } from 'mbr-serv-request';
 import { FS, getValidatedPath } from './fs';
-import { AsyncMemo } from './utils';
+import { AsyncMemo, wait } from './utils';
 import { getConfig } from './config';
 import { readTSFile } from './ts-transpiler';
 
@@ -135,7 +135,10 @@ const ROUTER = {
   '/src/mbr-state.js': NODE_MODULES + 'mbr-state/index.js',
 };
 
-module.exports = function (request: Request) {
+module.exports = async function (request: Request) {
+  const config = await useConfig();
+  await wait(config.responseDelay || 0);
+
   request.route(ROUTER)
     || request.match(SRC_RE, getResource)
     || request.match(FILES_RE, manipulateFiles)

@@ -1,4 +1,4 @@
-import { Splux } from 'splux';
+import { Splux, Component } from 'splux';
 import { Styles } from 'mbr-style';
 import { State } from 'mbr-state';
 import { Playlist } from '../lib/playlist';
@@ -11,7 +11,14 @@ export const host = {
   },
   playlist: new Playlist(),
   router: new Router(),
-  cover: null as { set(component, props): void, close(): void } | null,
+  cover: null as CoverIFC | null,
 };
 
-export const newComponent = Splux.createComponent<typeof host>();
+export type Host = typeof host;
+
+type CoverIFC = {
+  set<C, E>(component: Component<'div', Host, unknown, E>, params: E): void;
+  close(): void;
+}
+
+export const newComponent = Splux.createComponent<Host>();
