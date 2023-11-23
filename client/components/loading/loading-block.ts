@@ -1,4 +1,4 @@
-import { Component } from 'splux';
+import { Splux, Component } from 'splux';
 import { Host, newComponent } from '../../common/host';
 import { bem } from '../../lib/bem';
 
@@ -92,6 +92,7 @@ type Props = {
 };
 
 type Tags = keyof HTMLElementTagNameMap;
+type AnySplux = Splux<HTMLElementTagNameMap[Tags], Host>;
 
 export const LoadingBlock =
   function LoadingBlock<K extends Tags, T> (
@@ -99,49 +100,44 @@ export const LoadingBlock =
     errorRenderer?: Component<K, Host, void, any>
   ) {
     return newComponent(function (block, params: Props = {}) {
-      this.host.styles.add('loading-block', STYLES);
-      block.className = bem.join(cn(), params.className);
-      let current: Element | null = null;
-      const blockSpl = this;
+      block.host.styles.add('loading-block', STYLES);
+      block.node.className = bem.join(cn(), params.className);
+      let current: AnySplux | null = null;
 
-      const contentSpl = this.dom('div', function (content) {
-        content.className = 'loading-block__content';
+      const content = block.dom('div', { className: 'loading-block__content' });
 
-        return this;
-      });
+      const cover = block.dom('div', function (coverOuter) {
+        coverOuter.node.className = 'loading-block__cover';
 
-      const cover = this.dom('div', function (coverOuter) {
-        coverOuter.className = 'loading-block__cover';
-
-        this.dom('div', function (coverInner) {
-          coverInner.className = 'loading-block__cover-inner';
-        })
+        coverOuter.dom('div', function (coverInner) {
+          coverInner.node.className = 'loading-block__cover-inner';
+        });
       });
 
       return {
         fetch(promise: Promise<T>) {
-          cover.classList.add('loading-block__cover_visible');
-          contentSpl.node.classList.add('loading-block__content_dimmed');
+          cover.node.classList.add('loading-block__cover_visible');
+          content.node.classList.add('loading-block__content_dimmed');
 
           promise.then(function (data) {
-            cover.classList.remove('loading-block__cover_visible');
-            contentSpl.node.classList.remove('loading-block__content_dimmed');
+            cover.node.classList.remove('loading-block__cover_visible');
+            content.node.classList.remove('loading-block__content_dimmed');
 
             if (current) {
-              contentSpl.node.removeChild(current);
+              content.remove(current);
             }
 
-            current = contentSpl.dom(renderer, data);
+            current = content.dom(renderer, data);
           }).catch(function (error) {
-            cover.classList.remove('loading-block__cover_visible');
-            contentSpl.node.classList.remove('loading-block__content_dimmed');
+            cover.node.classList.remove('loading-block__cover_visible');
+            content.node.classList.remove('loading-block__content_dimmed');
 
             if (errorRenderer) {
               if (current) {
-                contentSpl.node.removeChild(current);
+                content.remove(current);
               }
 
-              current = contentSpl.dom(errorRenderer, error);
+              current = content.dom(errorRenderer, error);
             }
           });
         }

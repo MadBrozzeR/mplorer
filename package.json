@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
-    "start": "tsc && mbr-dev-server --port=8070 ./build/server.js",
+    "start": "tsc && mbr-dev-server --port=8070 ./server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,7 +31,7 @@
     "mbr-state": "^0.2.0",
     "mbr-style": "^1.1.0",
     "mbr-zip": "^0.1.0",
-    "splux": "^1.4.0",
+    "splux": "^1.5.0",
     "typescript": "^5.2.2"
   }
 }

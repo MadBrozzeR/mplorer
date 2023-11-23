@@ -95,43 +95,45 @@ type Params = {
 };
 
 const File = newComponent(function File (file, { data, list }: Params) {
-  const host = this.host;
+  const host = file.host;
 
-  if (data) {
-    let icon: ReturnType<typeof createFolderIcon> | null = null;
-
-    this.setParams({
-      className: 'file file_type_' + data.type,
-      onmouseover() { icon?.hover(true); },
-      onmouseout() { icon?.hover(false); },
-    });
-
-    switch (data.type) {
-      case 'directory':
-        file.onclick = function () {
-          host.router.push(data.name);
-        }
-
-        icon = createFolderIcon({ className: 'file__icon' });
-        this.dom(icon.node);
-        break;
-      default:
-        file.onclick = function () {
-          handleFile(data, list, host);
-        }
-        icon = createFileIcon({ className: 'file__icon' });
-        this.dom(icon.node);
-    }
-
-    this.dom('span', { innerText: data.name, className: 'file__name' });
+  if (!data) {
+    return;
   }
+  let icon: ReturnType<typeof createFolderIcon> | null = null;
+
+  file.setParams({
+    className: 'file file_type_' + data.type,
+    onmouseover() { icon?.hover(true); },
+    onmouseout() { icon?.hover(false); },
+  });
+
+  switch (data.type) {
+    case 'directory':
+      file.setParams({ onclick() {
+        host.router.push(data.name);
+      } });
+
+      icon = createFolderIcon({ className: 'file__icon' });
+      file.dom(icon.node);
+
+      break;
+    default:
+      file.setParams({ onclick() {
+        handleFile(data, list, host);
+      } })
+      icon = createFileIcon({ className: 'file__icon' });
+      file.dom(icon.node);
+  }
+
+  file.dom('span', { innerText: data.name, className: 'file__name' });
 });
 
 const FileList = newComponent(function FileList (list, payload: FileData[]) {
-  list.className = 'files__list';
+  list.setParams({ className: 'files__list' });
 
   for (var index = 0 ; index < payload.length ; ++index) {
-    this.dom(File, { data: payload[index], list: payload });
+    list.dom(File, { data: payload[index], list: payload });
   }
 });
 
@@ -141,6 +143,10 @@ var ORDER = {
   file: 3,
 };
 
+const ErrorBlock = newComponent((block, error: Error) => {
+  debugger;
+  block.setParams({ innerText: error.message });
+});
 
 async function fetchFiles (path: string) {
   const response = await fetch('/fs/' + path);
@@ -157,14 +163,12 @@ async function fetchFiles (path: string) {
 }
 
 export const Files = newComponent(function Files (files) {
-  const block = this;
+  files.host.styles.add('files', STYLE);
+  files.setParams({ className: 'files' });
 
-  this.host.styles.add('files', STYLE);
-  files.className = 'files';
+  const loader = files.dom(LoadingBlock(FileList, ErrorBlock), { className: 'files__loader-block' });
 
-  const loader = this.dom(LoadingBlock(FileList), { className: 'files__loader-block' });
-
-  this.host.state.route.listen(function (route) {
+  files.host.state.route.listen(function (route) {
     loader.fetch(fetchFiles(route.user + route.path));
   });
 });

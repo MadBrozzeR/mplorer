@@ -1,7 +1,8 @@
 import { bem } from '../../lib/bem';
-import { newComponent } from '../../common/host';
+import { Host, newComponent } from '../../common/host';
 import type { FileData } from '../../common/types';
 import type { Viewer } from '../files/types';
+import { Splux } from 'splux';
 
 var STYLE = {
   '.image-viewer': {
@@ -132,22 +133,22 @@ function imagePlaylistFilter (list, path) {
   return result;
 }
 
-export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function ImageViewer (viewer, { file, list }) {
-  viewer.className = cn();
-  var host = this.host;
+export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageViewer (viewer, { file, list }) {
+  viewer.node.className = cn();
+  var host = viewer.host;
   var user = host.state.route.state.user;
   var path = host.state.route.state.path;
   var fileName = path + file.name;
-  this.host.styles.add('image-viewer', STYLE);
-  var images = {};
-  var current = null;
+  viewer.host.styles.add('image-viewer', STYLE);
+  var images: Record<string, Splux<HTMLImageElement, Host>> = {};
+  var current: Splux<HTMLImageElement, Host> | null = null;
   var fullscreen = false;
 
   host.playlist.set(imagePlaylistFilter(list, path), { file: fileName });
 
-  function set (file) {
+  function set (file: string) {
     if (current) {
-      viewer.removeChild(current);
+      viewer.remove(current);
     }
 
     current = getImage(file);
@@ -156,10 +157,10 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function I
     getImage(host.playlist.relative(1));
     getImage(host.playlist.relative(2));
 
-    viewer.appendChild(images[file]);
+    viewer.dom(images[file]);
   }
 
-  function getImage (file) {
+  function getImage (file: string) {
     if (images[file]) {
       return images[file];
     }
@@ -168,26 +169,26 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function I
     img.src = '/file/' + user + file;
     img.className = cn('image');
 
-    return images[file] = img;
+    return images[file] = viewer.use(null).dom(img);
   }
 
   set(host.playlist.current());
 
-  this.dom('div', function (ifc) {
+  viewer.dom('div', function (ifc) {
     var visible = true;
     var clickPropagated = false;
 
-    ifc.className = cn('interface');
-    ifc.onclick = function () {
+    ifc.node.className = cn('interface');
+    ifc.node.onclick = function () {
       if (clickPropagated) {
         clickPropagated = false;
         return;
       }
 
-      ifc.className = cn('interface', { hidden: !(visible = !visible) })
+      ifc.node.className = cn('interface', { hidden: !(visible = !visible) })
     };
 
-    this.dom('div', {
+    ifc.dom('div', {
       innerText: '✖',
       className: cn('close'),
       onclick: function () {
@@ -199,7 +200,7 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function I
       }
     });
 
-    this.dom('div', {
+    ifc.dom('div', {
       innerText: '□',
       className: cn('fullscreen'),
       onclick: function () {
@@ -209,13 +210,13 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function I
           document.exitFullscreen();
           fullscreen = false;
         } else {
-          viewer.requestFullscreen();
+          viewer.node.requestFullscreen();
           fullscreen = true;
         }
       }
     });
 
-    this.dom('div', {
+    ifc.dom('div', {
       innerText: '←',
       className: cn('left'),
       onclick: function () {
@@ -224,7 +225,7 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent('div', function I
       }
     });
 
-    this.dom('div', {
+    ifc.dom('div', {
       innerText: '→',
       className: cn('right'),
       onclick: function () {

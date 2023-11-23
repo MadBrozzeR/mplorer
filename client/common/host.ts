@@ -16,8 +16,8 @@ export const host = {
 
 export type Host = typeof host;
 
-type CoverIFC = {
-  set<C, E>(component: Component<'div', Host, unknown, E>, params: E): void;
+export type CoverIFC = {
+  set<C, E>(component: Component<'div', Host, void, E>, params: E): void;
   close(): void;
 }
 

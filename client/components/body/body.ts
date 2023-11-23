@@ -15,12 +15,12 @@ const STYLE = {
 };
 
 export const Body = newComponent('div', function (body) {
-  this.host.styles.add('body', STYLE);
+  const host = body.host;
 
-  var host = this.host;
+  host.styles.add('body', STYLE);
 
-  body.className = 'main-block';
+  body.setParams({ className: 'main-block' });
 
-  this.dom(Header);
-  this.dom(Files);
+  body.dom(Header);
+  body.dom(Files);
 });

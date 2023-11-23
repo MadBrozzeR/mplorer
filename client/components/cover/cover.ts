@@ -1,5 +1,6 @@
 import { bem } from '../../lib/bem';
-import { newComponent } from '../../common/host';
+import { CoverIFC, Host, newComponent } from '../../common/host';
+import { Splux } from 'splux';
 
 var cn = bem('cover');
 
@@ -24,21 +25,22 @@ var STYLE = {
   }
 };
 
-export const Cover = newComponent('div', function Cover (curtain) {
-  curtain.className = cn('curtain');
-  this.host.styles.add('cover', STYLE);
-  var container = this;
+export const Cover = newComponent(function Cover (curtain) {
+  curtain.setParams({ className: 'cover__curtain' });
+  curtain.host.styles.add('cover', STYLE);
+  let content: Splux<HTMLDivElement, Host> | null = null;
 
-  // TODO replace any
-  function set (component: any, params: any) {
-    curtain.innerText = '';
-    container.dom(component, params);
-    curtain.className = cn('curtain', { active: true });
-  }
+  const ifc: CoverIFC = {
+    set(component, params) {
+      content && content.remove();
+      content = curtain.dom(component, params);
+      curtain.node.classList.add('cover__curtain_active');
+    },
 
-  function close () {
-    curtain.className = cn('curtain');
-  }
+    close() {
+      curtain.node.classList.remove('cover__curtain_active');
+    }
+  };
 
-  return { set, close };
+  return ifc;
 });

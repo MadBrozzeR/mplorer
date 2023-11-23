@@ -27,8 +27,8 @@ const STYLE = {
 }
 
 Splux.start(function (body, head) {
-  var host = this.host;
-  this.use(head).dom(host.styles.target);
+  var host = body.host;
+  head.dom(host.styles.target);
 
   host.router.attach(function (route) {
     host.state.route.set(route);
@@ -36,7 +36,7 @@ Splux.start(function (body, head) {
 
   host.styles.add('root', STYLE);
 
-  this.dom(Body);
+  body.dom(Body);
 
-  host.cover = this.dom(Cover);
+  host.cover = body.dom(Cover);
 }, host);
