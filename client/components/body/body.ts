@@ -10,6 +10,7 @@ const STYLE = {
     width: '100%',
     maxWidth: '1000px',
     height: '100%',
+    gap: '8px',
   },
 };
 
