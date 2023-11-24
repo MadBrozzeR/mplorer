@@ -11,7 +11,7 @@ var FLOATER = {
   border: '1px solid black',
   transform: 'translate(50%, -50%)',
   backgroundColor: '#ccc',
-  transition: '0.4s opacity ease-in-out',
+  transition: '1s opacity ease-in-out',
 };
 
 var STYLES = {
@@ -49,6 +49,7 @@ var STYLES = {
       boxSizing: 'border-box',
       overflow: 'hidden',
       transition: [
+        '.4s opacity ease-in-out',
         '.4s padding step-end',
         '.4s width step-end',
         '.4s height step-end',
@@ -60,6 +61,7 @@ var STYLES = {
         padding: '20px',
         opacity: 1,
         transition: [
+          '.4s opacity ease-in-out',
           '.4s padding step-start',
           '.4s width step-start',
           '.4s height step-start',

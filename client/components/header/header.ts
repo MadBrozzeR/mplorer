@@ -1,5 +1,6 @@
 import type { Component } from 'splux';
 import { newComponent } from '../../common/host';
+import { ICONS } from '../svg/icon';
 
 var STYLE = {
   '.header': {
@@ -10,7 +11,16 @@ var STYLE = {
   '.header-menu': {
     width: '36px',
     height: '36px',
-    backgroundColor: '#557',
+    backgroundColor: '#224',
+    border: '1.5px solid #99f',
+    borderRadius: '2px',
+    fontWeight: 700,
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+
+    ':hover': {
+      backgroundColor: '#336',
+    },
   },
   '.header-title': {
     flex: 1,
@@ -21,12 +31,28 @@ var STYLE = {
     backgroundColor: '#113',
     lineHeight: '36px',
     padding: '0 8px',
+    border: '1px solid #225',
+    borderWidth: '1px 0',
+    color: '#ccf',
   },
   '.header-back': {
+    color: '#99f',
     width: '36px',
     height: '36px',
-    backgroundColor: '#557',
-    border: '0',
+    backgroundColor: '#224',
+    border: '1.5px solid #99f',
+    borderRadius: '2px',
+    fontWeight: 700,
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '0',
+
+    ':hover': {
+      backgroundColor: '#336',
+    },
   },
 };
 
@@ -37,13 +63,17 @@ export const Header = newComponent('div', function Header (header) {
   var host = header.host;
   host.styles.add('header', STYLE);
 
-  header.dom('button', {
-    className: 'header-back',
-    innerText: '<',
-    onclick: function (event) {
-      event.preventDefault();
-      host.router.pop();
-    },
+  header.dom('button', function (button) {
+    button.setParams({
+      className: 'header-back',
+      onclick: function (event) {
+        event.preventDefault();
+        host.router.pop();
+      },
+    });
+
+    const icon = ICONS.BACK('header-back-icon');
+    button.dom(icon.node);
   });
 
   header.dom('div', function (title) {

@@ -1,9 +1,8 @@
 import { handleFile } from './handlers';
 import { newComponent } from '../../common/host';
 import { FileData } from '../../common/types';
-import { createFolderIcon } from '../svg/folder';
-import { createFileIcon } from '../svg/file';
 import { LoadingBlock } from '../loading/loading-block';
+import { IconInterface, ICONS } from '../svg/icon';
 
 var STYLE = {
   '.files': {
@@ -76,9 +75,9 @@ var STYLE = {
       cursor: 'pointer',
       color: '#99f',
     },
-    '_back': {
-      fontWeight: 900,
+    '_file': {
       cursor: 'pointer',
+      color: '#ccf',
     }
   },
 
@@ -100,7 +99,7 @@ const File = newComponent(function File (file, { data, list }: Params) {
   if (!data) {
     return;
   }
-  let icon: ReturnType<typeof createFolderIcon> | null = null;
+  let icon: IconInterface | null = null;
 
   file.setParams({
     className: 'file file_type_' + data.type,
@@ -114,7 +113,7 @@ const File = newComponent(function File (file, { data, list }: Params) {
         host.router.push(data.name);
       } });
 
-      icon = createFolderIcon({ className: 'file__icon' });
+      icon = ICONS.FOLDER('file__icon');
       file.dom(icon.node);
 
       break;
@@ -122,7 +121,7 @@ const File = newComponent(function File (file, { data, list }: Params) {
       file.setParams({ onclick() {
         handleFile(data, list, host);
       } })
-      icon = createFileIcon({ className: 'file__icon' });
+      icon = ICONS.FILE('file__icon');
       file.dom(icon.node);
   }
 

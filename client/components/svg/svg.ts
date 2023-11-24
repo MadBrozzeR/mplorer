@@ -34,7 +34,7 @@ export class Svg<N extends SVGElement> {
     return this;
   }
 
-  add<K extends keyof TagNames>(tag: K, params: ParamsAsObj | ParamsAsFunc<TagNames[K]>): TagNames[K] {
+  add<K extends keyof TagNames>(tag: K, params: ParamsAsObj | ParamsAsFunc<TagNames[K]>) {
     const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
 
     this.node.appendChild(node);
@@ -47,6 +47,6 @@ export class Svg<N extends SVGElement> {
       svg.set(params);
     }
 
-    return node;
+    return svg;
   };
 }
