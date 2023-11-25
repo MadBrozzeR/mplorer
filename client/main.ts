@@ -29,14 +29,16 @@ const STYLE = {
 
 Splux.start(function (body, head) {
   var host = body.host;
-  head.dom(host.styles.target);
   injectStyles(host.styles);
   host.styles.add('root', STYLE);
 
   host.router.attach(function (route) {
-    host.state.route.set(route);
+    host.state.assign({ route });
   });
 
+  host.state.broadcastTo(body);
+
+  head.dom(host.styles.target);
   body.dom(CommonDefs.svg);
   body.dom(Body);
 

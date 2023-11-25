@@ -7,3 +7,11 @@ export type FileData = {
   mtime: number;
   birthtime: number;
 };
+
+export type Particle<D> = {
+  status: 'initial' | 'success' | 'failed' | 'pending';
+  data: D | null;
+  error: string;
+};
+
+export type Broadcast<T extends string, D> = { type: T, data: D };

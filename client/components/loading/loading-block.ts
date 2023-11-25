@@ -116,33 +116,46 @@ export const LoadingBlock =
         });
       });
 
-      return {
-        fetch(promise: Promise<T>) {
+      function set(data: T | null | Error) {
+        if (data === null) {
           cover.node.classList.add('loading-block__cover_visible');
           content.node.classList.add('loading-block__content_dimmed');
+        } else if (data instanceof Error) {
+          cover.node.classList.remove('loading-block__cover_visible');
+          content.node.classList.remove('loading-block__content_dimmed');
 
-          promise.then(function (data) {
-            cover.node.classList.remove('loading-block__cover_visible');
-            content.node.classList.remove('loading-block__content_dimmed');
-
+          if (errorRenderer) {
             if (current) {
               content.remove(current);
             }
 
-            current = content.dom(renderer, data);
+            current = content.dom(errorRenderer, data);
+          }
+        } else {
+          cover.node.classList.remove('loading-block__cover_visible');
+          content.node.classList.remove('loading-block__content_dimmed');
+
+          if (current) {
+            content.remove(current);
+          }
+
+          current = content.dom(renderer, data);
+        }
+      }
+
+      return {
+        set,
+        fetch(promise: Promise<T>) { // TODO Remove as unused
+          set(null);
+
+          promise.then(function (data) {
+            set(data);
           }).catch(function (error) {
-            cover.node.classList.remove('loading-block__cover_visible');
-            content.node.classList.remove('loading-block__content_dimmed');
-
-            if (errorRenderer) {
-              if (current) {
-                content.remove(current);
-              }
-
-              current = content.dom(errorRenderer, error);
+            if (error instanceof Error) {
+              set(error);
             }
           });
-        }
+        },
       };
     });
 };

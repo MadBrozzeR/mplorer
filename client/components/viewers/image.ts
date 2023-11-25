@@ -135,14 +135,15 @@ function imagePlaylistFilter (list, path) {
 
 export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageViewer (viewer, { file, list }) {
   viewer.node.className = cn();
-  var host = viewer.host;
-  var user = host.state.route.state.user;
-  var path = host.state.route.state.path;
-  var fileName = path + file.name;
+  const host = viewer.host;
+  const route = host.state.get('route');
+  const user = route.user;
+  const path = route.path;
+  const fileName = path + file.name;
   viewer.host.styles.add('image-viewer', STYLE);
-  var images: Record<string, Splux<HTMLImageElement, Host>> = {};
-  var current: Splux<HTMLImageElement, Host> | null = null;
-  var fullscreen = false;
+  const images: Record<string, Splux<HTMLImageElement, Host>> = {};
+  let current: Splux<HTMLImageElement, Host> | null = null;
+  let fullscreen = false;
 
   host.playlist.set(imagePlaylistFilter(list, path), { file: fileName });
 

@@ -1,5 +1,6 @@
 import type { Component } from 'splux';
 import { newComponent } from '../../common/host';
+import { tune, tuneInState } from '../../common/utils';
 import { ICONS } from '../svg/icon';
 
 var STYLE = {
@@ -80,11 +81,11 @@ export const Header = newComponent('div', function Header (header) {
   header.dom('div', function (title) {
     title.node.className = 'header-title';
 
-    header.host.state.route.listen(function (route) {
+    title.tuneIn(tuneInState('route', function (route) {
       var path = decodeURIComponent(route.path).replace(FLOATING_SLASH_RE, '');
       var slashIndex = path.lastIndexOf('/');
       title.node.innerText = path === '' ? '/' : path.substring(slashIndex + 1);
-    });
+    }));
   });
 
   header.dom('div', { className: 'header-menu' });

@@ -1,8 +1,10 @@
 import { handleFile } from './handlers';
-import { newComponent } from '../../common/host';
+import { Cast, newComponent } from '../../common/host';
 import { FileData } from '../../common/types';
 import { LoadingBlock } from '../loading/loading-block';
 import { IconInterface, ICONS } from '../svg/icon';
+import { requestForState, tuneInState } from '../../common/utils';
+import { RouterData } from '../../lib/router';
 
 var STYLE = {
   '.files': {
@@ -143,7 +145,6 @@ var ORDER = {
 };
 
 const ErrorBlock = newComponent((block, error: Error) => {
-  debugger;
   block.setParams({ innerText: error.message });
 });
 
@@ -162,12 +163,40 @@ async function fetchFiles (path: string) {
 }
 
 export const Files = newComponent(function Files (files) {
-  files.host.styles.add('files', STYLE);
+  const host = files.host;
+  host.styles.add('files', STYLE);
   files.setParams({ className: 'files' });
+  const route = host.state.get('route');
+
+  function requestFiles (route: RouterData) {
+    requestForState(fetchFiles(route.user + route.path), function (update) {
+      host.state.assign(function (state) {
+        return {
+          files: { ...state.files, ...update },
+        }
+      });
+    });
+  }
 
   const loader = files.dom(LoadingBlock(FileList, ErrorBlock), { className: 'files__loader-block' });
+  requestFiles(route);
 
-  files.host.state.route.listen(function (route) {
-    loader.fetch(fetchFiles(route.user + route.path));
-  });
+  files.tuneIn(tuneInState({
+    route: function (route) {
+      requestFiles(route);
+    },
+    files: function (particle) {
+      switch (particle.status) {
+        case 'failed':
+          loader.set(new Error(particle.error));
+          break;
+        case 'success':
+          loader.set(particle.data);
+          break;
+        default:
+          loader.set(null);
+          break;
+      }
+    },
+  }));
 });
