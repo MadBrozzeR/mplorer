@@ -2,7 +2,11 @@ import { Svg } from './svg';
 import { Styles } from 'mbr-style';
 import { host } from '../../common/host';
 
-export const STYLE = {
+const STYLE = {
+  '.svg-icon-common-defs': {
+    display: 'none',
+  },
+
   '.svg-icon': {
     '__icon': {
       transition: 'var(--transition, .6s) all ease-in-out',
@@ -16,6 +20,7 @@ export const STYLE = {
 };
 
 type Params = {
+  id: string;
   className?: string;
   points: string[];
   colors: {
@@ -26,33 +31,11 @@ type Params = {
   height: number,
 };
 
-const REPLACING_RE = /[ ,.]/g;
-
-export function createIcon ({ className, points, colors, width, height }: Params) {
+function createIcon ({id, className, points, colors, width, height }: Params) {
   const svg = Svg.create({ width, height }, function (svg) {
     svg.set({ 'class': className });
 
-    const defs = svg.add('defs', function (defs) {
-      defs.add('filter', function (filter) {
-        filter.set({ id: 'blur1' }).add('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '2' });
-      });
-      defs.add('filter', function (filter) {
-        filter.set({ id: 'blur2' }).add('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '4' });
-      });
-    });
-
     for (let index = 0 ; index < points.length ; ++index) {
-      const id = 'line-' + points[index].replace(REPLACING_RE, '_');
-
-      defs.add('polyline', {
-        id: id,
-        points: points[index],
-        'stroke-width': '2',
-        fill: 'none',
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-      });
-
       svg.add('g', function (group) {
         group.set({ 'class': 'svg-icon__blur' });
         group.add('use', {
@@ -75,16 +58,16 @@ export function createIcon ({ className, points, colors, width, height }: Params
   });
 
   const ifc = {
-    node: svg,
+    node: svg.node,
     hover(value: boolean) {
       if (value) {
-        svg.style.setProperty('--color', colors.hover);
-        svg.style.setProperty('--blur', '1');
-        svg.style.setProperty('--transition', '.2s');
+        svg.node.style.setProperty('--color', colors.hover);
+        svg.node.style.setProperty('--blur', '1');
+        svg.node.style.setProperty('--transition', '.2s');
       } else {
-        svg.style.setProperty('--color', colors.normal);
-        svg.style.setProperty('--blur', '0');
-        svg.style.setProperty('--transition', '.6s');
+        svg.node.style.setProperty('--color', colors.normal);
+        svg.node.style.setProperty('--blur', '0');
+        svg.node.style.setProperty('--transition', '.6s');
       }
     },
   };
@@ -102,11 +85,53 @@ const ICON_PARAMS = {
 
 export type IconInterface = ReturnType<typeof createIcon>;
 
+export function injectStyles(styles: Styles) {
+  styles.add('svg-icons-neon', STYLE);
+};
+
+export const CommonDefs = Svg.create({ width: 0, height: 0}, function (svg) {
+  const shapes: Record<string, string> = {};
+  let nextIndex = 1;
+
+  svg.set({ 'class': 'svg-icon-common-defs' });
+
+  const defs = svg.add('defs', function (defs) {
+    defs.add('filter', function (filter) {
+      filter.set({ id: 'blur1' }).add('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '2' });
+    });
+    defs.add('filter', function (filter) {
+      filter.set({ id: 'blur2' }).add('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '4' });
+    });
+  });
+
+  return {
+    svg: svg.node,
+    pushShape(points: string) {
+      if (!shapes[points]) {
+        shapes[points] = 'line-' + nextIndex++;
+
+        defs.add('polyline', {
+          id: shapes[points],
+          points: points,
+          'stroke-width': '2',
+          fill: 'none',
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round',
+        });
+      }
+
+      return shapes[points];
+    }
+  };
+});
+
 export const ICONS = Object.keys(ICON_PARAMS).reduce(function (result, key) {
   const params = ICON_PARAMS[key];
+  const id = CommonDefs.pushShape(params.points);
 
-  result[key] = function (className) {
+  result[key] = function (className: string) {
     return createIcon({
+      id: id,
       className: className,
       points: params.points,
       width: params.width,
@@ -120,6 +145,3 @@ export const ICONS = Object.keys(ICON_PARAMS).reduce(function (result, key) {
 
   return result;
 }, {} as Record<keyof typeof ICON_PARAMS, (className: string) => IconInterface>);
-
-
-host.styles.add('svg-icons-neon', STYLE);

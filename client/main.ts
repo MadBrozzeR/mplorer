@@ -4,6 +4,7 @@ import { host } from './common/host';
 import { Cover } from './components/cover/cover';
 
 import { Body } from './components/body/body';
+import { CommonDefs, injectStyles } from './components/svg/icon';
 
 const STYLE = {
   'html, body': {
@@ -29,13 +30,14 @@ const STYLE = {
 Splux.start(function (body, head) {
   var host = body.host;
   head.dom(host.styles.target);
+  injectStyles(host.styles);
+  host.styles.add('root', STYLE);
 
   host.router.attach(function (route) {
     host.state.route.set(route);
   });
 
-  host.styles.add('root', STYLE);
-
+  body.dom(CommonDefs.svg);
   body.dom(Body);
 
   host.cover = body.dom(Cover);
