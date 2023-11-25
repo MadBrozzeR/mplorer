@@ -49,6 +49,7 @@ var STYLE = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: '0',
+    outline: 'none',
 
     ':hover': {
       backgroundColor: '#336',
