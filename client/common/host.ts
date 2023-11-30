@@ -3,17 +3,15 @@ import { Styles } from 'mbr-style';
 import { State } from 'mbr-state';
 import { Playlist } from '../lib/playlist';
 import { Router, RouterData } from '../lib/router';
-import { Broadcast, Particle } from './types';
+import type { Broadcast, Particle, SelectedFiles } from './types';
 import { stateClosure } from './state';
-import { FileData } from '../common/types';
+import type { FileData } from '../common/types';
+import { initParticle } from './utils';
 
 const initialState = {
   route: null as RouterData | null,
-  files: {
-    status: 'initial',
-    data: null,
-    error: '',
-  } as Particle<FileData[]>,
+  files: initParticle<FileData[]>(null),
+  selectedFiles: {} as SelectedFiles,
 };
 
 export const host = {

@@ -35,3 +35,11 @@ export function requestForState<D> (promise: Promise<D>, callback: (particle: Pa
     }
   });
 }
+
+export function initParticle<D> (initial: D | null): Particle<D> {
+  return {
+    status: 'initial',
+    data: initial,
+    error: '',
+  };
+}

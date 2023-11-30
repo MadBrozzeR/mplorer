@@ -15,3 +15,5 @@ export type Particle<D> = {
 };
 
 export type Broadcast<T extends string, D> = { type: T, data: D };
+
+export type SelectedFiles = Record<string, FileData>;

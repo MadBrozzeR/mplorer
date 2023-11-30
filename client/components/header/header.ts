@@ -1,6 +1,7 @@
 import type { Component } from 'splux';
 import { newComponent } from '../../common/host';
 import { tune, tuneInState } from '../../common/utils';
+import { RouterData } from '../../lib/router';
 import { ICONS } from '../svg/icon';
 
 var STYLE = {
@@ -30,11 +31,12 @@ var STYLE = {
     textOverflow: 'ellipsis',
     height: '36px',
     backgroundColor: '#113',
-    lineHeight: '36px',
+    lineHeight: '34px',
     padding: '0 8px',
     border: '1px solid #225',
     borderWidth: '1px 0',
     color: '#ccf',
+    boxSizing: 'border-box',
   },
   '.header-back': {
     color: '#99f',
@@ -81,11 +83,16 @@ export const Header = newComponent('div', function Header (header) {
   header.dom('div', function (title) {
     title.node.className = 'header-title';
 
-    title.tuneIn(tuneInState('route', function (route) {
+    function setPath (route: RouterData) {
       var path = decodeURIComponent(route.path).replace(FLOATING_SLASH_RE, '');
       var slashIndex = path.lastIndexOf('/');
       title.node.innerText = path === '' ? '/' : path.substring(slashIndex + 1);
-    }));
+    }
+
+    const route = host.state.get('route');
+    route && setPath(route);
+
+    title.tuneIn(tuneInState({ route: setPath }));
   });
 
   header.dom('div', { className: 'header-menu' });

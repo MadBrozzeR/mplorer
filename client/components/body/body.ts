@@ -1,6 +1,7 @@
 import { newComponent } from '../../common/host';
 import { Files } from '../files/files';
 import { Header } from '../header/header';
+import { Toolbar } from '../toolbar/toolbar';
 
 const STYLE = {
   '.main-block': {
@@ -14,7 +15,7 @@ const STYLE = {
   },
 };
 
-export const Body = newComponent('div', function (body) {
+export const Body = newComponent(function (body) {
   const host = body.host;
 
   host.styles.add('body', STYLE);
@@ -23,4 +24,5 @@ export const Body = newComponent('div', function (body) {
 
   body.dom(Header);
   body.dom(Files);
+  body.dom(Toolbar);
 });

@@ -29,6 +29,11 @@ const VIEWERS = {
 };
 
 export function handleFile (file: FileData, list: FileData[], host: Host) {
+  if (file.type === 'directory') {
+    host.router.push(file.name);
+    return;
+  }
+
   var extension = getExtension(file.name);
 
   if (extension in VIEWERS) {
