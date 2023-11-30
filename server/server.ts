@@ -97,9 +97,14 @@ async function getFiles (this: Request, user: string, path: string) {
 async function readFile (this: Request, user: string, path: string) {
   const files = await prepareFS(user);
   const file = await files.getFile(path);
-  this.headers['Content-Length'] = file.data.length.toString();
-  this.headers['Content-Disposition'] = 'attachment; filename="' + encodeURIComponent(file.name) +'"';
-  this.send(file.data, file.extension);
+
+  if (file) {
+    this.headers['Content-Length'] = file.data.length.toString();
+    this.headers['Content-Disposition'] = 'attachment; filename="' + encodeURIComponent(file.name) +'"';
+    this.send(file.data, file.extension);
+  } else {
+    get404(this);
+  }
 }
 
 async function unzipFile (this: Request, user: string, path: string) {

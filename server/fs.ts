@@ -136,15 +136,20 @@ class FS {
     await this.path.update(path);
     const extension = this.path.getExtension();
 
-    const data = await this.path.readFile();
+    try {
+      const data = await this.path.readFile();
 
-    return {
-      path: path,
-      name: this.path.getTip(),
-      extension: extension,
-      data: data,
-      mime: MIME[extension] || null,
-    };
+      return {
+        path: path,
+        name: this.path.getTip(),
+        extension: extension,
+        data: data,
+        mime: MIME[extension] || null,
+      };
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
   async getFullPath(path: string) {

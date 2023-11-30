@@ -153,6 +153,10 @@ function attachTouch (
     },
     oncontextmenu(event) {
       event.preventDefault();
+      behavior.call(elementSpl, 'hold', file);
+    },
+    onclick() {
+      behavior.call(elementSpl, 'touch', file);
     }
   })
 }
