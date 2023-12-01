@@ -124,7 +124,7 @@ function attachTouch (
   behavior: TouchBehaviorAction,
 ) {
   let timer: NodeJS.Timeout;
-  let holdTriggered = true;
+  let holdTriggered = false;
   let isMoved = false;
 
   elementSpl.setParams({
@@ -137,6 +137,7 @@ function attachTouch (
         behavior.call(elementSpl, 'hold', file);
       }, TOUCH_TIMEOUT);
     },
+    /*
     ontouchend() {
       if (!holdTriggered && !isMoved) {
         clearTimeout(timer);
@@ -144,6 +145,7 @@ function attachTouch (
       }
       isMoved = false;
     },
+    */
     ontouchmove() {
       if (!holdTriggered) {
         clearTimeout(timer);
@@ -156,7 +158,12 @@ function attachTouch (
       behavior.call(elementSpl, 'hold', file);
     },
     onclick() {
-      behavior.call(elementSpl, 'touch', file);
+      if (!holdTriggered && !isMoved) {
+        clearTimeout(timer);
+        behavior.call(elementSpl, 'touch', file);
+        holdTriggered = false;
+      }
+      isMoved = false;
     }
   })
 }
@@ -172,10 +179,17 @@ type Params = {
   onAction: (type: TouchActionType, file: FileIFC) => void;
 };
 
+const STATE_CLASS_MAP = {
+  none: '',
+  touch: 'file_state_touch',
+  selected: 'file_state_selected',
+};
+
 const File = newComponent(function File (file, { data, list, onAction }: Params) {
   const host = file.host;
   let isSelected = false;
   let classModifier = '';
+  const route = host.state.get('route');
 
   if (!data) {
     return;
@@ -205,17 +219,15 @@ const File = newComponent(function File (file, { data, list, onAction }: Params)
   const ifc: FileIFC = {
     data: data,
     setState(state) {
+      if (STATE_CLASS_MAP[state] === classModifier) {
+        return;
+      }
+
       if (classModifier) {
         file.node.classList.remove(classModifier);
       }
 
-      if (state === 'selected') {
-        classModifier = 'file_state_selected';
-      } else if (state === 'touch') {
-        classModifier = 'file_state_touch';
-      } else {
-        classModifier = '';
-      }
+      classModifier = STATE_CLASS_MAP[state] || STATE_CLASS_MAP.none;
 
       classModifier && file.node.classList.add(classModifier);
     },
@@ -234,6 +246,8 @@ const File = newComponent(function File (file, { data, list, onAction }: Params)
   attachTouch(file, data, function (action) {
     onAction(action, ifc);
   });
+
+  return ifc;
 });
 
 const FileList = newComponent(function FileList (list, payload: FileData[]) {
@@ -243,6 +257,7 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
   let selectedFiles: SelectedFiles = {};
   let selectedFilesNumber = 0;
   const path = host.state.get('route').path;
+  const fileNodes: FileIFC[] = [];
 
   function selectFile (value: boolean, fileIfc: FileIFC) {
     const fileName = path + fileIfc.data.name;
@@ -253,7 +268,6 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
 
         return newState;
       });
-      fileIfc.setState('selected');
     } else {
       host.state.assign(function (state) {
         const newState = { selectedFiles: { ...state.selectedFiles } };
@@ -261,13 +275,15 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
 
         return newState;
       });
-      fileIfc.setState('none');
     }
   }
 
   list.tuneIn(tuneInState({ selectedFiles(files) {
     selectedFiles = files;
     selectedFilesNumber = Object.keys(selectedFiles).length;
+    fileNodes.forEach(function (node) {
+      node.setState((path + node.data.name) in files ? 'selected' : 'none');
+    });
   } }));
 
   function handleAction (action: TouchActionType, fileIfc: FileIFC) {
@@ -277,10 +293,6 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
       switch (action) {
         case 'touch':
           selectFile(false, fileIfc);
-          fileIfc.setState('none');
-          break;
-        case 'hold':
-          selectFile(false, fileIfc)
           fileIfc.setState('none');
           break;
       }
@@ -308,11 +320,11 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
   }
 
   for (var index = 0 ; index < payload.length ; ++index) {
-    list.dom(File, {
+    fileNodes.push(list.dom(File, {
       data: payload[index],
       list: payload,
       onAction: handleAction,
-    });
+    }));
   }
 });
 

@@ -1,6 +1,6 @@
 import type { Splux } from 'splux';
 import { Host, newComponent } from '../../common/host';
-import { FileData } from '../../common/types';
+import { FileData, SelectedFiles } from '../../common/types';
 import { tuneInState } from '../../common/utils';
 import { ICONS, IconInterface } from '../svg/icon';
 
@@ -21,6 +21,13 @@ const STYLE = {
       height: '36px',
     },
 
+    '__buttons': {
+      height: '100%',
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+    },
+
     '__button': {
       border: '1.5px solid #99f',
       borderRadius: '3px',
@@ -32,6 +39,12 @@ const STYLE = {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
+      cursor: 'pointer',
+      outline: 'none',
+
+      ':hover': {
+        backgroundColor: '#336',
+      }
     },
 
     '__button-icon': {
@@ -65,18 +78,36 @@ export const Toolbar = newComponent(function (toolbar) {
   host.styles.add('toolbar', STYLE);
   let route = host.state.get('route');
 
-  function setButtons (files: Record<string, FileData>) {
-    toolbar.clear();
-    if (Object.keys(files).length === 1) {
-      toolbar.dom(Button, {
-        icon: ICONS.DOWNLOAD,
-        action() {
-          const file = Object.keys(files)[0];
-          window.location.href = '/file/' + route.user + file;
+  const buttons = toolbar.dom('div', function (buttons) {
+    buttons.setParams({
+      className: 'toolbar__buttons',
+    });
+
+    return {
+      set(files: SelectedFiles) {
+        buttons.clear();
+        const keys = Object.keys(files);
+        if (keys.length === 1 && files[keys[0]].type !== 'directory') {
+          buttons.dom(Button, {
+            icon: ICONS.DOWNLOAD,
+            action() {
+              const file = Object.keys(files)[0];
+              window.location.href = '/file/' + route.user + file;
+            }
+          });
         }
-      });
-    }
-  }
+      }
+    };
+  });
+
+  toolbar.dom('div', function (block) {
+    block.dom(Button, {
+      icon: ICONS.CROSS,
+      action() {
+        host.state.reset('selectedFiles');
+      }
+    });
+  });
 
   toolbar.tuneIn(tuneInState({
     route(routeState) {
@@ -87,7 +118,7 @@ export const Toolbar = newComponent(function (toolbar) {
 
       if (count) {
         toolbar.node.classList.add('toolbar_active');
-        setButtons(state);
+        buttons.set(state);
       } else {
         toolbar.node.classList.remove('toolbar_active');
       }

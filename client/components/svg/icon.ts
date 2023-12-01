@@ -82,6 +82,7 @@ const ICON_PARAMS = {
   FILE: { points: ['25,10 20,5 6,5 6,27 26,27 26,14 18,14 18,9'], colors: ['#eef', '#224'], width: 32, height: 32},
   FOLDER: { points: ['3,13 3,27 29,27 29,10 3,10 4,6 15,6 15.5,7'], colors: ['#99f', '#224'], width: 32, height: 32},
   DOWNLOAD: { points: ['8,19 3,19 3,8 8,8 8,4 24,4 24,8 29,8 29,19 22,19 22,13 11,13 11,23 7,23 16.5,30 26,23 22,23 22,22'], colors: ['#99f', '#224'], width: 32, height: 32},
+  CROSS: { points: ['2,4 14,16 2,28 4,30 16,18 29,30 31,28 18,16 31,4 29,2 16,14 4,2'], colors: ['#99f', '#224'], width: 32, height: 32},
 };
 
 export type IconInterface = ReturnType<typeof createIcon>;
