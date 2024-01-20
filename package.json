@@ -25,13 +25,13 @@
   "homepage": "https://github.com/MadBrozzeR/mplorer#readme",
   "devDependencies": {
     "@types/node": "^20.9.2",
-    "mbr-serv-request": "^0.2.0"
+    "mbr-serv-request": "^0.2.3",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "mbr-state": "^0.2.0",
     "mbr-style": "^1.1.0",
     "mbr-zip": "^0.1.0",
-    "splux": "^1.5.2",
-    "typescript": "^5.2.2"
+    "splux": "^1.6.0"
   }
 }
