@@ -36,22 +36,24 @@ function createIcon ({id, className, points, colors, width, height }: Params) {
     svg.set({ 'class': className });
 
     for (let index = 0 ; index < points.length ; ++index) {
+      const lineId = '#' + id + '-' + index;
+
       svg.add('g', function (group) {
         group.set({ 'class': 'svg-icon__blur' });
         group.add('use', {
-          href: '#' + id,
+          href: lineId,
           stroke: 'white',
           filter: 'url(#blur1)',
         });
         group.add('use', {
-          href: '#' + id,
+          href: lineId,
           stroke: 'darkorange',
           filter: 'url(#blur2)',
         });
       });
 
       svg.add('use', {
-        href: '#' + id,
+        href: lineId,
         'class': 'svg-icon__icon',
       });
     }
@@ -108,12 +110,12 @@ export const CommonDefs = Svg.create({ width: 0, height: 0}, function (svg) {
 
   return {
     svg: svg.node,
-    pushShape(points: string) {
+    pushShape(points: string, id: string) {
       if (!shapes[points]) {
-        shapes[points] = 'line-' + nextIndex++;
+        shapes[points] = id;
 
         defs.add('polyline', {
-          id: shapes[points],
+          id: id,
           points: points,
           'stroke-width': '2',
           fill: 'none',
@@ -136,8 +138,8 @@ export const ICONS = Object.keys(ICON_PARAMS).reduce(function (result, key) {
     const params = ICON_PARAMS[key];
     const id = params.id;
 
-    params.points.forEach(function (points) {
-      CommonDefs.pushShape(points);
+    params.points.forEach(function (points, index) {
+      CommonDefs.pushShape(points, id + '-' + index);
     });
 
     result[key] = function (className: string) {
