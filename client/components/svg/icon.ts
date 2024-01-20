@@ -1,6 +1,5 @@
 import { Svg } from './svg';
 import { Styles } from 'mbr-style';
-import { host } from '../../common/host';
 
 const STYLE = {
   '.svg-icon-common-defs': {
@@ -95,7 +94,6 @@ export function injectStyles(styles: Styles) {
 
 export const CommonDefs = Svg.create({ width: 0, height: 0}, function (svg) {
   const shapes: Record<string, string> = {};
-  let nextIndex = 1;
 
   svg.set({ 'class': 'svg-icon-common-defs' });
 
@@ -150,8 +148,8 @@ export const ICONS = Object.keys(ICON_PARAMS).reduce(function (result, key) {
         width: params.width,
         height: params.height,
         colors: {
-          normal: params.colors[0],
-          hover: params.colors[1],
+          normal: params.colors[0] || '',
+          hover: params.colors[1] || '',
         },
       })
     }

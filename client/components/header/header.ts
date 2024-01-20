@@ -1,9 +1,7 @@
-import type { Component } from 'splux';
 import { newComponent } from '../../common/host';
 import { tuneInState } from '../../common/utils';
 import { RouterData } from '../../lib/router';
 import { ICONS } from '../svg/icon';
-import { Splux } from 'splux';
 
 var STYLE = {
   '.header': {

@@ -1,4 +1,3 @@
-import type { Component } from 'splux';
 import type { Host } from '../../common/host';
 import type { FileData } from '../../common/types';
 import { isKeyOf } from '../../common/utils';

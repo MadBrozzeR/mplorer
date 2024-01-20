@@ -3,7 +3,6 @@ import type { Stats } from 'node:fs';
 import { extract } from './zip';
 
 const TRAIL_SLASH_RE = /\/+$/;
-const MULTIPLE_SLASH_RE = /\/{2,}/g;
 const TIPPED_SLASH_RE = /^\/+|\/+$/g;
 
 class ThePath {
@@ -65,16 +64,6 @@ class ThePath {
   }
 }
 
-function getExtension (file: string) {
-  const index = file.lastIndexOf('.');
-
-  if (index > -1) {
-    return file.substring(index + 1);
-  }
-
-  return '';
-}
-
 function statsToObj (stats: Stats) {
   return {
     name: null as string | null,
@@ -101,8 +90,6 @@ async function getValidatedPath (path: string, root: string) {
   return realPath;
 }
 
-const SPACE_RE = / /g;
-
 const MIME: Record<string, string> = {
   'png': 'image/png',
   'svg': 'image/svg+xml',
@@ -126,7 +113,11 @@ class FS {
     }));
 
     for (let index = 0 ; index < dir.length ; ++index) {
-      stats[index].name = dir[index];
+      const stat = stats[index];
+
+      if (stat) {
+        stat.name = dir[index] || '';
+      }
     }
 
     return stats;

@@ -1,5 +1,5 @@
 import { bem } from '../../lib/bem';
-import { Host, newComponent } from '../../common/host';
+import { Host } from '../../common/host';
 import type { FileData } from '../../common/types';
 import type { Viewer } from '../files/types';
 import { Splux } from 'splux';
@@ -122,7 +122,7 @@ function imagePlaylistFilter (list: FileData[], path: string) {
   var extension: string, name: string;
 
   for (var index = 0 ; index < list.length ; ++index) {
-    name = list[index].name || '';
+    name = list[index]?.name || '';
     extension = getExtension(name);
 
     if (extension in IMAGE_SUPPORT) {
@@ -162,7 +162,7 @@ export const ImageViewer: Viewer<'ImageViewer'> = function ImageViewer (viewer, 
     getImage(host.playlist.relative(1));
     getImage(host.playlist.relative(2));
 
-    viewer.dom(images[file]);
+    current && viewer.dom(current);
   }
 
   function getImage (file: string | null) {
@@ -170,15 +170,19 @@ export const ImageViewer: Viewer<'ImageViewer'> = function ImageViewer (viewer, 
       return null;
     }
 
-    if (images[file]) {
-      return images[file];
+    const imageFile = images[file];
+
+    if (imageFile) {
+      return imageFile;
     }
 
     var img = new Image();
     img.src = '/file/' + user + file;
     img.className = cn('image');
+    const image = viewer.use(null).dom(img);
+    images[file] = image;
 
-    return images[file] = viewer.use(null).dom(img);
+    return image;
   }
 
   set(host.playlist.current());

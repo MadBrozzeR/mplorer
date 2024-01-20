@@ -143,19 +143,6 @@ export const LoadingBlock =
         }
       }
 
-      return {
-        set,
-        fetch(promise: Promise<T>) { // TODO Remove as unused
-          set(null);
-
-          promise.then(function (data) {
-            set(data);
-          }).catch(function (error) {
-            if (error instanceof Error) {
-              set(error);
-            }
-          });
-        },
-      };
+      return { set };
     });
 };

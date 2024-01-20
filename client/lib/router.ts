@@ -26,8 +26,8 @@ export class Router {
 
         if (regMatch) {
           router.data = {
-            user: regMatch[1],
-            path: regMatch[2],
+            user: regMatch[1] || '',
+            path: regMatch[2] || '',
           };
         }
 

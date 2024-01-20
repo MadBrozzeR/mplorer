@@ -1,8 +1,5 @@
-import { bem } from '../../lib/bem';
 import { CoverIFC, Host, newComponent } from '../../common/host';
 import { Splux } from 'splux';
-
-var cn = bem('cover');
 
 var STYLE = {
   '.cover__curtain': {

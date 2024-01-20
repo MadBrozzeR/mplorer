@@ -1,6 +1,5 @@
-import type { Splux } from 'splux';
-import { Cast, Host, newComponent } from '../../common/host';
-import { FileData, SelectedFiles } from '../../common/types';
+import { newComponent } from '../../common/host';
+import { SelectedFiles } from '../../common/types';
 import { tuneInState } from '../../common/utils';
 import { ICONS, IconInterface } from '../svg/icon';
 
@@ -87,7 +86,10 @@ export const Toolbar = newComponent('div', function (toolbar) {
       set(files: SelectedFiles) {
         buttons.clear();
         const keys = Object.keys(files);
-        if (keys.length === 1 && files[keys[0]].type !== 'directory') {
+        const singleKey = keys.length === 1 && keys[0];
+        const singleFile = singleKey && files[singleKey];
+
+        if (singleFile && singleFile.type !== 'directory') {
           buttons.dom(Button, {
             icon: ICONS.DOWNLOAD,
             action() {

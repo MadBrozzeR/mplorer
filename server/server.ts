@@ -18,8 +18,8 @@ const CACHE: Record<string, string> = {
 
 const useConfig = AsyncMemo(getConfig());
 
-function getPathParts (path: string) {
-  let [name, params = ''] = path.split('?');
+function getPathParts (path = '') {
+  let [name = '', params = ''] = path.split('?');
   const dotIndex = name.lastIndexOf('.');
   let extension = dotIndex > -1 ? name.substring(dotIndex + 1) : null;
 
@@ -54,7 +54,7 @@ async function getResource (this: Request, regMatch: RegExpExecArray) {
     let file: Buffer | string = await getFile(pathParts.name, ROOT);
 
     if (pathParts.name in CACHE) {
-      request.headers['Cache-Control'] = CACHE[pathParts.name];
+      request.headers['Cache-Control'] = CACHE[pathParts.name] || '';
     }
 
     request.send(file, pathParts.extension);
@@ -86,8 +86,8 @@ async function getFiles (this: Request, user: string, path: string) {
 }
 
 async function readFile (this: Request, user: string, path: string) {
-  const files = await prepareFS(user);
-  const file = await files.getFile(path);
+  const files = user && await prepareFS(user);
+  const file = files && await files.getFile(path);
 
   if (file) {
     this.headers['Content-Length'] = file.data.length.toString();
@@ -101,7 +101,7 @@ async function readFile (this: Request, user: string, path: string) {
 async function unzipFile (this: Request, user: string, path: string) {
   try {
     const files = await prepareFS(user);
-    const file = await files.unzip(path);
+    await files.unzip(path);
 
     this.send();
   } catch (error) {
@@ -110,7 +110,7 @@ async function unzipFile (this: Request, user: string, path: string) {
   }
 }
 
-function manipulateFiles (this: Request, [_, action, user, path]: RegExpExecArray) {
+function manipulateFiles (this: Request, [_, action, user = '', path = '']: RegExpExecArray) {
   switch (action) {
     case 'fs':
       getFiles.call(this, user, path);

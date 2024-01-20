@@ -1,6 +1,5 @@
 import { State } from 'mbr-state';
 import { Splux } from 'splux';
-import { RouterData } from '../lib/router';
 
 export function stateClosure<S extends {}> (state: S) {
   var lastState = state;

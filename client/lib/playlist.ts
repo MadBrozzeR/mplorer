@@ -61,7 +61,7 @@ export class Playlist {
   relative(value: number) {
     var newIndex = this.relativeIndex(value);
 
-    return newIndex > -1 ? this.list[newIndex] : null;
+    return newIndex > -1 && this.list[newIndex] || null;
   }
 
   next() {

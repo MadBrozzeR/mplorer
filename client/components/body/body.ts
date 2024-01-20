@@ -2,7 +2,6 @@ import { newComponent } from '../../common/host';
 import { Files } from '../files/files';
 import { Header } from '../header/header';
 import { Toolbar } from '../toolbar/toolbar';
-import { Splux } from 'splux';
 
 const STYLE = {
   '.main-block': {

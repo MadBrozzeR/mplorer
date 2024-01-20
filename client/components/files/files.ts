@@ -1,6 +1,6 @@
 import { Splux } from 'splux';
 import { handleFile } from './handlers';
-import { Cast, Host, newComponent } from '../../common/host';
+import { Host, newComponent } from '../../common/host';
 import type { FileData, SelectedFiles } from '../../common/types';
 import { LoadingBlock } from '../loading/loading-block';
 import { IconInterface, ICONS } from '../svg/icon';
@@ -128,7 +128,7 @@ function attachTouch (
   let isMoved = false;
 
   elementSpl.setParams({
-    ontouchstart(event) {
+    ontouchstart() {
       behavior.call(elementSpl, 'press', file);
       holdTriggered = false;
       timer = setTimeout(function () {
@@ -175,7 +175,6 @@ type FileIFC = {
 };
 type Params = {
   data: FileData;
-  list: FileData[];
   onAction: (type: TouchActionType, file: FileIFC) => void;
 };
 
@@ -185,11 +184,8 @@ const STATE_CLASS_MAP = {
   selected: 'file_state_selected',
 };
 
-const File = newComponent('div', function File (file, { data, list, onAction }: Params) {
-  const host = file.host;
-  let isSelected = false;
+const File = newComponent('div', function File (file, { data, onAction }: Params) {
   let classModifier = '';
-  const route = host.state.get('route');
 
   if (!data) {
     return null;
@@ -332,9 +328,9 @@ const FileList = newComponent('div', function FileList (list, payload: FileData[
   }
 
   for (var index = 0 ; index < payload.length ; ++index) {
-    const file = list.dom(File, {
-      data: payload[index],
-      list: payload,
+    const data = payload[index];
+    const file = data && list.dom(File, {
+      data: data,
       onAction: handleAction,
     });
 
@@ -370,7 +366,6 @@ export const Files = newComponent('div', function Files (files) {
   const host = files.host;
   host.styles.add('files', STYLE);
   files.setParams({ className: 'files' });
-  const route = host.state.get('route');
 
   function requestFiles (route: RouterData) {
     requestForState(fetchFiles(route.user + route.path), function (update) {

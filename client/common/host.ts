@@ -1,9 +1,8 @@
 import { Splux, Component } from 'splux';
 import { Styles } from 'mbr-style';
-import { State } from 'mbr-state';
 import { Playlist } from '../lib/playlist';
 import { Router, RouterData } from '../lib/router';
-import type { Broadcast, Particle, SelectedFiles } from './types';
+import type { Broadcast, SelectedFiles } from './types';
 import { stateClosure } from './state';
 import type { FileData } from '../common/types';
 import { initParticle } from './utils';
@@ -25,7 +24,7 @@ export const host = {
 export type Host = typeof host;
 
 export type CoverIFC = {
-  set<C, E>(component: Component<'div', Host, void, E>, params: E): void;
+  set<E>(component: Component<'div', Host, void, E>, params: E): void;
   close(): void;
 }
 

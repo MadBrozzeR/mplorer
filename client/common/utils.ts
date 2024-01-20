@@ -1,13 +1,11 @@
 import { AppState, Cast } from './host';
 import { Particle } from './types';
 
-type CastData<T extends string> = Extract<Cast, { type: T }>['data'];
-
 export function isKeyOf<T extends {}> (key: string | number | symbol, set: T): key is keyof T {
   return key in set;
 }
 
-export function tuneInState<T extends keyof AppState> (listeners: { [K in keyof AppState]?: (data: AppState[K]) => void }) {
+export function tuneInState (listeners: { [K in keyof AppState]?: (data: AppState[K]) => void }) {
   return function (cast: Cast) {
     if (cast.type === 'stateChange') {
       for (const key in listeners) {
