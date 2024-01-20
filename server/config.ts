@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 
 const FILE = {
-  CONFIG: __dirname + '/../config.json',
-  EXAMPLE: __dirname + '/../config.example.json',
+  CONFIG: __dirname + '/../../config.json',
+  EXAMPLE: __dirname + '/../../config.example.json',
 };
 
 export async function getConfig () {

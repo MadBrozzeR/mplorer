@@ -7,4 +7,4 @@ export type Params = {
   list: FileData[];
 };
 
-export type Viewer<N extends string> = Component<'div', Host, void, Params> | N;
+export type Viewer<N extends string> = Component<'div', Host, void, Params> & { type: N };

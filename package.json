@@ -4,8 +4,8 @@
   "description": "File explorer",
   "main": "server.js",
   "scripts": {
-    "build": "tsc",
-    "start": "tsc && mbr-dev-server --port=8070 ./server.js",
+    "build": "tsc --build ./server/tsconfig.json ./client/tsconfig.json",
+    "start": "mbr-dev-server --port=8070 ./server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

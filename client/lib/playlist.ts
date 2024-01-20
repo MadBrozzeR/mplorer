@@ -26,7 +26,7 @@ export class Playlist {
     return this;
   }
 
-  use(name) {
+  use(name: string) {
     var index = this.list.indexOf(name);
 
     if (index > -1) {
@@ -42,7 +42,7 @@ export class Playlist {
     return this.list[this.index] || null;
   }
 
-  relativeIndex(value) {
+  relativeIndex(value: number) {
     var newIndex = this.index + value;
 
     if (this.loop) {
@@ -58,7 +58,7 @@ export class Playlist {
     return -1;
   }
 
-  relative(value) {
+  relative(value: number) {
     var newIndex = this.relativeIndex(value);
 
     return newIndex > -1 ? this.list[newIndex] : null;

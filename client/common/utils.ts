@@ -3,22 +3,16 @@ import { Particle } from './types';
 
 type CastData<T extends string> = Extract<Cast, { type: T }>['data'];
 
-// TODO Remove as unused
-export function tune(tunner: { [key in Cast['type']]?: (data: CastData<key>) => void }) {
-  return function (cast: Cast) {
-    if (cast.type in tunner) {
-      const data = cast.data;
-      tunner[cast.type](cast.data as any);
-    }
-  }
+export function isKeyOf<T extends {}> (key: string | number | symbol, set: T): key is keyof T {
+  return key in set;
 }
 
 export function tuneInState<T extends keyof AppState> (listeners: { [K in keyof AppState]?: (data: AppState[K]) => void }) {
   return function (cast: Cast) {
     if (cast.type === 'stateChange') {
       for (const key in listeners) {
-        if (cast.data.state[key] !== cast.data.lastState[key]) {
-          listeners[key](cast.data.state[key]);
+        if (isKeyOf(key, cast.data.state) && cast.data.state[key] !== cast.data.lastState[key]) {
+          listeners[key]?.(cast.data.state[key] as any);
         }
       }
     }

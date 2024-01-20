@@ -101,12 +101,12 @@ export const LoadingBlock =
     renderer: Component<K, Host, void, T>,
     errorRenderer?: Component<K, Host, void, any>
   ) {
-    return newComponent(function (block, params: Props = {}) {
+    return newComponent('div', function (block, params: Props = {}) {
       block.host.styles.add('loading-block', STYLES);
       block.node.className = bem.join(cn(), params.className);
       let current: AnySplux | null = null;
 
-      const content = block.dom('div', { className: 'loading-block__content' });
+      const content = block.dom('div').params({ className: 'loading-block__content' });
 
       const cover = block.dom('div', function (coverOuter) {
         coverOuter.node.className = 'loading-block__cover';

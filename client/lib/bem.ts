@@ -22,7 +22,7 @@ export function bem (blockName: string) {
     return result.join(' ');
   }
 }
-bem.join = function (...args: string[]) {
+bem.join = function (...args: Array<string | undefined>) {
   var result = '';
 
   for (var index = 0 ; index < args.length ; ++index) {

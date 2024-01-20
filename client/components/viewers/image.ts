@@ -98,7 +98,7 @@ var STYLE = {
 
 var cn = bem('image-viewer');
 
-function getExtension (file) {
+function getExtension (file: string) {
   var index = file.lastIndexOf('.');
 
   if (index > -1) {
@@ -117,12 +117,12 @@ export var IMAGE_SUPPORT = {
   webp: true,
 };
 
-function imagePlaylistFilter (list, path) {
-  var result = [];
-  var extension, name;
+function imagePlaylistFilter (list: FileData[], path: string) {
+  const result = [];
+  var extension: string, name: string;
 
   for (var index = 0 ; index < list.length ; ++index) {
-    name = list[index].name;
+    name = list[index].name || '';
     extension = getExtension(name);
 
     if (extension in IMAGE_SUPPORT) {
@@ -133,12 +133,12 @@ function imagePlaylistFilter (list, path) {
   return result;
 }
 
-export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageViewer (viewer, { file, list }) {
+export const ImageViewer: Viewer<'ImageViewer'> = function ImageViewer (viewer, { file, list }) {
   viewer.node.className = cn();
   const host = viewer.host;
   const route = host.state.get('route');
-  const user = route.user;
-  const path = route.path;
+  const user = route?.user || '';
+  const path = route?.path || '';
   const fileName = path + file.name;
   viewer.host.styles.add('image-viewer', STYLE);
   const images: Record<string, Splux<HTMLImageElement, Host>> = {};
@@ -147,9 +147,13 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageVie
 
   host.playlist.set(imagePlaylistFilter(list, path), { file: fileName });
 
-  function set (file: string) {
+  function set (file: string | null) {
     if (current) {
       viewer.remove(current);
+    }
+
+    if (!file) {
+      return;
     }
 
     current = getImage(file);
@@ -161,7 +165,11 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageVie
     viewer.dom(images[file]);
   }
 
-  function getImage (file: string) {
+  function getImage (file: string | null) {
+    if (!file) {
+      return null;
+    }
+
     if (images[file]) {
       return images[file];
     }
@@ -189,19 +197,19 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageVie
       ifc.node.className = cn('interface', { hidden: !(visible = !visible) })
     };
 
-    ifc.dom('div', {
+    ifc.dom('div').params({
       innerText: '✖',
       className: cn('close'),
       onclick: function () {
         clickPropagated = true;
-        host.cover.close();
+        host.cover?.close();
         if (fullscreen) {
           document.exitFullscreen();
         }
       }
     });
 
-    ifc.dom('div', {
+    ifc.dom('div').params({
       innerText: '□',
       className: cn('fullscreen'),
       onclick: function () {
@@ -217,7 +225,7 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageVie
       }
     });
 
-    ifc.dom('div', {
+    ifc.dom('div').params({
       innerText: '←',
       className: cn('left'),
       onclick: function () {
@@ -226,7 +234,7 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageVie
       }
     });
 
-    ifc.dom('div', {
+    ifc.dom('div').params({
       innerText: '→',
       className: cn('right'),
       onclick: function () {
@@ -235,4 +243,5 @@ export const ImageViewer: Viewer<'ImageViewer'> = newComponent(function ImageVie
       }
     });
   })
-});
+};
+ImageViewer.type = 'ImageViewer';

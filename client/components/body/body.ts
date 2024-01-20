@@ -2,6 +2,7 @@ import { newComponent } from '../../common/host';
 import { Files } from '../files/files';
 import { Header } from '../header/header';
 import { Toolbar } from '../toolbar/toolbar';
+import { Splux } from 'splux';
 
 const STYLE = {
   '.main-block': {
@@ -15,7 +16,7 @@ const STYLE = {
   },
 };
 
-export const Body = newComponent(function (body) {
+export const Body = newComponent('div', function (body) {
   const host = body.host;
 
   host.styles.add('body', STYLE);

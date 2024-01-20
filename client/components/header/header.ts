@@ -1,8 +1,9 @@
 import type { Component } from 'splux';
 import { newComponent } from '../../common/host';
-import { tune, tuneInState } from '../../common/utils';
+import { tuneInState } from '../../common/utils';
 import { RouterData } from '../../lib/router';
 import { ICONS } from '../svg/icon';
+import { Splux } from 'splux';
 
 var STYLE = {
   '.header': {
@@ -62,7 +63,7 @@ var STYLE = {
 
 var FLOATING_SLASH_RE = /^\/+|\/+$/g;
 
-export const Header = newComponent('div', function Header (header) {
+const Header = newComponent('div', function Header (header) {
   header.node.className = 'header';
   var host = header.host;
   host.styles.add('header', STYLE);
@@ -83,7 +84,11 @@ export const Header = newComponent('div', function Header (header) {
   header.dom('div', function (title) {
     title.node.className = 'header-title';
 
-    function setPath (route: RouterData) {
+    function setPath (route: RouterData | null) {
+      if (!route) {
+        return;
+      }
+
       var path = decodeURIComponent(route.path).replace(FLOATING_SLASH_RE, '');
       var slashIndex = path.lastIndexOf('/');
       title.node.innerText = path === '' ? '/' : path.substring(slashIndex + 1);
@@ -95,5 +100,7 @@ export const Header = newComponent('div', function Header (header) {
     title.tuneIn(tuneInState({ route: setPath }));
   });
 
-  header.dom('div', { className: 'header-menu' });
+  header.dom('div').params({ className: 'header-menu' });
 });
+
+export { Header };

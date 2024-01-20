@@ -3,13 +3,14 @@ import type { Request } from 'mbr-serv-request';
 import { FS, getValidatedPath } from './fs';
 import { AsyncMemo, wait } from './utils';
 import { getConfig } from './config';
-import { readTSFile } from './ts-transpiler';
 
 const ROOT = __dirname + '/../client/';
+const STATIC_ROOT = __dirname + '/../../static/';
+const MODULE_ROOT = __dirname + '/../../node_modules/';
+
 const SRC_RE = /^\/src\/(.+)$/;
 const FILES_RE = /^\/(fs|file|unzip)\/(\w+)\/(.*)$/;
 
-const NODE_MODULES = __dirname + '/../node_modules/';
 
 const CACHE: Record<string, string> = {
   'favicon.ico': 'max-age=604800',
@@ -23,8 +24,8 @@ function getPathParts (path: string) {
   let extension = dotIndex > -1 ? name.substring(dotIndex + 1) : null;
 
   if (!extension) {
-    name += '.ts';
-    extension = 'ts';
+    name += '.js';
+    extension = 'js';
   }
 
   return { name, params, extension };
@@ -51,26 +52,16 @@ async function getResource (this: Request, regMatch: RegExpExecArray) {
     }
 
     let file: Buffer | string = await getFile(pathParts.name, ROOT);
-    let extension = pathParts.extension;
-
-    if (pathParts.extension === 'ts') {
-      file = await readTSFile(file);
-      extension = 'js';
-    }
 
     if (pathParts.name in CACHE) {
       request.headers['Cache-Control'] = CACHE[pathParts.name];
     }
 
-    request.send(file, extension || '');
+    request.send(file, pathParts.extension);
   } catch (error) {
     console.log(error);
     get404(request);
   }
-}
-
-async function getIndex (request: Request) {
-  request.send(await getFile('index.html', ROOT));
 }
 
 async function prepareFS (user: string) {
@@ -134,10 +125,10 @@ function manipulateFiles (this: Request, [_, action, user, path]: RegExpExecArra
 }
 
 const ROUTER = {
-  '/': { GET: getIndex },
-  '/src/splux.js': NODE_MODULES + 'splux/index.js',
-  '/src/mbr-style.js': NODE_MODULES + 'mbr-style/index.js',
-  '/src/mbr-state.js': NODE_MODULES + 'mbr-state/index.js',
+  '/': STATIC_ROOT + 'index.html',
+  '/lib/splux.js': MODULE_ROOT + 'splux/index.js',
+  '/lib/mbr-style.js': MODULE_ROOT + 'mbr-style/index.js',
+  '/lib/mbr-state.js': MODULE_ROOT + 'mbr-state/index.js',
 };
 
 module.exports = async function (request: Request) {

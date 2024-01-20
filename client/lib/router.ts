@@ -7,12 +7,12 @@ export type RouterData = {
   path: string;
 };
 
-function isWindow (target: EventTarget): target is Window {
+function isWindow (target: EventTarget | null): target is Window {
   return target === window;
 }
 
 export class Router {
-  action: (data: RouterData) => void;
+  action: (data: RouterData) => void = function () {};
   data: RouterData | null = null;
 
   attach(callback: (data: RouterData) => void) {
@@ -31,7 +31,7 @@ export class Router {
           };
         }
 
-        callback(router.data);
+        router.data && callback(router.data);
       }
     }
 
@@ -40,15 +40,21 @@ export class Router {
     handleHashChange({ target: window });
   }
 
-  go(path) {
-    window.location.hash = ('#' + this.data.user + '/' + path).replace(SLASHHH_RE, '/');
+  go(path: string) {
+    if (this.data) {
+      window.location.hash = ('#' + this.data.user + '/' + path).replace(SLASHHH_RE, '/');
+    }
   }
 
-  push(dir) {
-    this.go(this.data.path + '/' + dir + '/');
+  push(dir: string) {
+    if (this.data) {
+      this.go(this.data.path + '/' + dir + '/');
+    }
   }
 
   pop() {
-    this.go(this.data.path.replace(POP_RE, ''));
+    if (this.data) {
+      this.go(this.data.path.replace(POP_RE, ''));
+    }
   }
 }

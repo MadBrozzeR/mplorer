@@ -1,5 +1,5 @@
 import type { Splux } from 'splux';
-import { Host, newComponent } from '../../common/host';
+import { Cast, Host, newComponent } from '../../common/host';
 import { FileData, SelectedFiles } from '../../common/types';
 import { tuneInState } from '../../common/utils';
 import { ICONS, IconInterface } from '../svg/icon';
@@ -72,7 +72,7 @@ const Button = newComponent('button', function (button, params: ButtonParams) {
   button.dom(icon.node);
 });
 
-export const Toolbar = newComponent(function (toolbar) {
+export const Toolbar = newComponent('div', function (toolbar) {
   toolbar.node.className = 'toolbar';
   const host = toolbar.host;
   host.styles.add('toolbar', STYLE);
@@ -91,6 +91,10 @@ export const Toolbar = newComponent(function (toolbar) {
           buttons.dom(Button, {
             icon: ICONS.DOWNLOAD,
             action() {
+              if (!route) {
+                return;
+              }
+
               const file = Object.keys(files)[0];
               window.location.href = '/file/' + route.user + file;
             }

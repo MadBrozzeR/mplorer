@@ -5,7 +5,7 @@ type RootParams = {
 
 type TagNames = SVGElementTagNameMap;
 
-type ParamsAsObj = Record<string, string>;
+type ParamsAsObj = Record<string, string | undefined>;
 type ParamsAsFunc<N extends SVGElement, I> = (node: Svg<N>) => I;
 type Either<A, B> = A extends void | undefined ? B : A;
 
@@ -33,7 +33,8 @@ export class Svg<N extends SVGElement> {
 
   set(params: ParamsAsObj) {
     for (const key in params) {
-      this.node.setAttribute(key, params[key]);
+      const value = params[key];
+      value && this.node.setAttribute(key, value);
     }
 
     return this;
@@ -50,10 +51,12 @@ export class Svg<N extends SVGElement> {
 
     const svg = new Svg(node);
 
-    if (params instanceof Function) {
-      result = params(svg);
-    } else if (params.constructor === Object) {
-      svg.set(params);
+    if (params) {
+      if (params instanceof Function) {
+        result = params(svg);
+      } else if (params.constructor === Object) {
+        svg.set(params);
+      }
     }
 
     return (result === undefined ? svg : result) as any;

@@ -185,14 +185,14 @@ const STATE_CLASS_MAP = {
   selected: 'file_state_selected',
 };
 
-const File = newComponent(function File (file, { data, list, onAction }: Params) {
+const File = newComponent('div', function File (file, { data, list, onAction }: Params) {
   const host = file.host;
   let isSelected = false;
   let classModifier = '';
   const route = host.state.get('route');
 
   if (!data) {
-    return;
+    return null;
   }
   let icon: IconInterface | null = null;
 
@@ -214,7 +214,7 @@ const File = newComponent(function File (file, { data, list, onAction }: Params)
       break;
   }
 
-  file.dom('span', { innerText: data.name, className: 'file__name' });
+  file.dom('span').setParams({ innerText: data.name || '', className: 'file__name' });
 
   const ifc: FileIFC = {
     data: data,
@@ -233,12 +233,12 @@ const File = newComponent(function File (file, { data, list, onAction }: Params)
     },
     getState() {
       switch (classModifier) {
-        case '':
-          return 'none';
         case 'file_state_touch':
           return 'touch';
         case 'file_state_selected':
           return 'selected';
+        default:
+          return 'none';
       }
     }
   };
@@ -250,16 +250,20 @@ const File = newComponent(function File (file, { data, list, onAction }: Params)
   return ifc;
 });
 
-const FileList = newComponent(function FileList (list, payload: FileData[]) {
+const FileList = newComponent('div', function FileList (list, payload: FileData[]) {
   list.setParams({ className: 'files__list' });
   const host = list.host;
 
   let selectedFiles: SelectedFiles = {};
   let selectedFilesNumber = 0;
-  const path = host.state.get('route').path;
+  const path = host.state?.get('route')?.path;
   const fileNodes: FileIFC[] = [];
 
   function selectFile (value: boolean, fileIfc: FileIFC) {
+    if (!path || !fileIfc.data.name) {
+      return;
+    }
+
     const fileName = path + fileIfc.data.name;
     if (value) {
       host.state.assign(function (state) {
@@ -282,12 +286,20 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
     selectedFiles = files;
     selectedFilesNumber = Object.keys(selectedFiles).length;
     fileNodes.forEach(function (node) {
+      if (!path || !node.data.name) {
+        return;
+      }
+
       node.setState((path + node.data.name) in files ? 'selected' : 'none');
     });
   } }));
 
   function handleAction (action: TouchActionType, fileIfc: FileIFC) {
     const isSelectionMode = selectedFilesNumber > 0;
+
+    if (!path || !fileIfc.data.name) {
+      return;
+    }
 
     if ((path + fileIfc.data.name) in selectedFiles) {
       switch (action) {
@@ -320,11 +332,13 @@ const FileList = newComponent(function FileList (list, payload: FileData[]) {
   }
 
   for (var index = 0 ; index < payload.length ; ++index) {
-    fileNodes.push(list.dom(File, {
+    const file = list.dom(File, {
       data: payload[index],
       list: payload,
       onAction: handleAction,
-    }));
+    });
+
+    file && fileNodes.push(file);
   }
 });
 
@@ -334,7 +348,7 @@ var ORDER = {
   file: 3,
 };
 
-const ErrorBlock = newComponent((block, error: Error) => {
+const ErrorBlock = newComponent('div', (block, error: Error) => {
   block.setParams({ innerText: error.message });
 });
 
@@ -352,7 +366,7 @@ async function fetchFiles (path: string) {
   });
 }
 
-export const Files = newComponent(function Files (files) {
+export const Files = newComponent('div', function Files (files) {
   const host = files.host;
   host.styles.add('files', STYLE);
   files.setParams({ className: 'files' });
@@ -372,7 +386,7 @@ export const Files = newComponent(function Files (files) {
 
   files.tuneIn(tuneInState({
     route: function (route) {
-      requestFiles(route);
+      route && requestFiles(route);
     },
     files: function (particle) {
       switch (particle.status) {

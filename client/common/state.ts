@@ -26,9 +26,14 @@ export function stateClosure<S extends {}> (state: S) {
     get<K extends keyof S>(key: K) {
       return lastState[key];
     },
+    getAll() {
+      return lastState;
+    },
     reset<K extends keyof S>(key: K) {
       if (initialState[key] !== lastState[key]) {
-        this.assign({ [key]: initialState[key] });
+        const value: Partial<S> = {};
+        value[key] = initialState[key];
+        this.assign(value);
       }
     }
   }

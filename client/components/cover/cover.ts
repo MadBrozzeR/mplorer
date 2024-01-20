@@ -25,7 +25,7 @@ var STYLE = {
   }
 };
 
-export const Cover = newComponent(function Cover (curtain) {
+export const Cover = newComponent('div', function Cover (curtain) {
   curtain.setParams({ className: 'cover__curtain' });
   curtain.host.styles.add('cover', STYLE);
   let content: Splux<HTMLDivElement, Host> | null = null;

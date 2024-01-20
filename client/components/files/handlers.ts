@@ -1,13 +1,14 @@
 import type { Component } from 'splux';
 import type { Host } from '../../common/host';
 import type { FileData } from '../../common/types';
+import { isKeyOf } from '../../common/utils';
 import { ImageViewer, IMAGE_SUPPORT } from "../viewers/image";
 import { Viewer } from './types';
 
 function getExtension (file: string | null) {
-  var dotPos = file && file.lastIndexOf('.');
+  var dotPos = file ? file.lastIndexOf('.') : -1;
 
-  if (dotPos > -1) {
+  if (file && dotPos > -1) {
     return file.substring(dotPos + 1);
   }
 
@@ -30,13 +31,13 @@ const VIEWERS = {
 
 export function handleFile (file: FileData, list: FileData[], host: Host) {
   if (file.type === 'directory') {
-    host.router.push(file.name);
+    file.name && host.router.push(file.name);
     return;
   }
 
   var extension = getExtension(file.name);
 
-  if (extension in VIEWERS) {
-    host.cover.set(VIEWERS[extension], { file, list });
+  if (isKeyOf(extension, VIEWERS)) {
+    host.cover?.set(VIEWERS[extension], { file, list });
   }
 };
